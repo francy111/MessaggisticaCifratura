@@ -1,4 +1,6 @@
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import javax.swing.*;
@@ -15,12 +17,13 @@ import javax.swing.border.LineBorder;
  * Digitare il messaggio da inviare
  * Selezionare la modalità di cifratura
  */
-public class SecretSender extends JFrame{
+public class SecretSender extends JFrame implements ActionListener{
 	private static final long serialVersionUID = 1L;
 			
 	/**
 	 * Attributi 
 	 */
+	private JFrame impostazioniG;
 	private int code;
 	private ArrayList<Pair> inboxes;
 	private JButton impostazioni;
@@ -54,6 +57,7 @@ public class SecretSender extends JFrame{
 		
 		impostazioni = new JButton("TK");
 		impostazioni.setBounds(0,0,55,55);
+		impostazioni.addActionListener(this);
 		
 		ricerca = new JTextField();
 		ricerca.setBounds(55,0,217,56);
@@ -62,7 +66,7 @@ public class SecretSender extends JFrame{
 		infoChat = new JTextField();
 		infoChat.setBounds(270,0,660,56);
 		infoChat.setText("Placeholder - ip - porta");
-		infoChat.setVisible(false);
+		//infoChat.setVisible(false);
 		
 		listaChat = new JPanel();
 		listaChat.setBorder(LineBorder.createBlackLineBorder());
@@ -72,16 +76,16 @@ public class SecretSender extends JFrame{
 		cronologia = new JTextArea();
 		cronologia.setBorder(LineBorder.createBlackLineBorder());
 		cronologia.setBounds(270,55,660,400);
-		cronologia.setVisible(false);
+		//cronologia.setVisible(false);
 		
 		zonaMessaggio = new JTextField();
 		zonaMessaggio.setBounds(270,455,601,57);
 		zonaMessaggio.setText("Scrivi un messaggio...");
-		zonaMessaggio.setVisible(false);
+		//zonaMessaggio.setVisible(false);
 		
 		inviaMessaggio = new JButton("TK");
 		inviaMessaggio.setBounds(870,455, 60, 55);
-		inviaMessaggio.setVisible(false);
+		//inviaMessaggio.setVisible(false);
 		
 		cesare = new JRadioButton();
 		vigenere = new JRadioButton();
@@ -90,11 +94,22 @@ public class SecretSender extends JFrame{
 		r.add(vigenere);
 		
 		chiudiApplicazione = new JButton("Exit");
+		chiudiApplicazione.addActionListener(this);
 		chiudiApplicazione.setVisible(false);
 		
 		logout = new JButton("Esegui logout");
+		logout.addActionListener(this);
 		logout.setVisible(false);
 		
+		impostazioniG = new JFrame("Impostazioni");
+		JPanel pp = new JPanel();
+		pp.setLayout(new BoxLayout(pp, BoxLayout.Y_AXIS));
+		impostazioniG.setBounds(50, 100, 300, 150);
+		pp.add(logout);
+		pp.add(chiudiApplicazione);
+		impostazioniG.add(pp);
+		setVisible(false);
+		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		
 		/* Aggiunta dei componenti alla
 		 * finestra
@@ -106,8 +121,6 @@ public class SecretSender extends JFrame{
 		add(cronologia);
 		add(zonaMessaggio);
 		add(inviaMessaggio);
-		add(chiudiApplicazione);
-		add(logout);
 		
 		setVisible(true);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -121,5 +134,19 @@ public class SecretSender extends JFrame{
 	private class Pair{
 		public int port;
 		public String IP;
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if(e.getSource().equals(impostazioni)) {
+			impostazioniG.setVisible(true);
+			chiudiApplicazione.setVisible(true);
+			logout.setVisible(true);
+		}
+		else if(e.getSource().equals(chiudiApplicazione)) {
+			// si chiude le socket
+			dispose();
+			impostazioniG.dispose();
+		}
 	}
 }
