@@ -24,17 +24,21 @@ public class SecretSender extends JFrame implements ActionListener{
 	 */
 	private JFrame impostazioniG;
 	private int code;
-	private ArrayList<Pair> inboxes;
+	private ArrayList<Inbox> inboxes;
+	private Inbox inboxAttuale = null;
 	private JButton impostazioni;
 	private JTextField ricerca;
 	private JTextField infoChat;
 	private JPanel listaChat;
 	private JTextArea cronologia;
 	private JTextField zonaMessaggio;
+	private JPanel tipoCrittografia;
 	private JButton inviaMessaggio;
 	
 	private JRadioButton cesare, vigenere;
-
+	private JTextField chiave;
+	
+	private JButton rimuoviChat;
 	private JButton creaChat;
 	private JButton chiudiApplicazione;
 	private JButton logout;
@@ -55,23 +59,23 @@ public class SecretSender extends JFrame implements ActionListener{
 		this.code = code;
 		inboxes = new ArrayList<>();
 		
-		impostazioni = new JButton("TK");
-		impostazioni.setBounds(0,0,55,55);
+		impostazioni = new JButton("Settings");
+		impostazioni.setBounds(0,0,75,55);
 		impostazioni.addActionListener(this);
 		
 		ricerca = new JTextField();
-		ricerca.setBounds(55,0,217,56);
+		ricerca.setBounds(75,0,198,56);
 		ricerca.setText("Ricerca");
 		
 		infoChat = new JTextField();
 		infoChat.setBounds(270,0,660,56);
-		infoChat.setText("Placeholder - ip - porta");
-		//infoChat.setVisible(false);
+		infoChat.setText("");
+		infoChat.setVisible(false);
 		
 		listaChat = new JPanel();
 		listaChat.setBorder(LineBorder.createBlackLineBorder());
 		listaChat.setBounds(0,55,271,456);
-		listaChat.setLayout(new BoxLayout(listaChat,BoxLayout.Y_AXIS));
+		listaChat.setLayout(null);
 		listaChat.setBackground(Color.white);
 		JScrollPane scrollPane = new JScrollPane(listaChat,ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scrollPane.setPreferredSize(new Dimension(600,600));
@@ -79,26 +83,45 @@ public class SecretSender extends JFrame implements ActionListener{
 		
 		cronologia = new JTextArea();
 		cronologia.setBorder(LineBorder.createBlackLineBorder());
-		cronologia.setBounds(270,55,660,400);
-		//cronologia.setVisible(false);
+		cronologia.setBounds(270,55,660,350);
+		cronologia.setVisible(false);
+		cronologia.setEnabled(false);
 		
 		zonaMessaggio = new JTextField();
 		zonaMessaggio.setBounds(270,455,601,57);
 		zonaMessaggio.setText("Scrivi un messaggio...");
-		//zonaMessaggio.setVisible(false);
+		zonaMessaggio.setVisible(false);
 		
-		inviaMessaggio = new JButton("TK");
+		inviaMessaggio = new JButton("Send");
 		inviaMessaggio.setBounds(870,455, 60, 55);
-		//inviaMessaggio.setVisible(false);
+		inviaMessaggio.setVisible(false);
 		
-		cesare = new JRadioButton();
-		vigenere = new JRadioButton();
+		chiave = new JTextField();
+		chiave.setPreferredSize(new Dimension(75, 25));
+		chiave.setEnabled(false);
+		
+		cesare = new JRadioButton("Cesare");
+		vigenere = new JRadioButton("VigenerÃ¨");
+		cesare.addActionListener(this);
+		vigenere.addActionListener(this);
 		ButtonGroup r = new ButtonGroup();
 		r.add(cesare);
 		r.add(vigenere);
 		
+		tipoCrittografia = new JPanel();
+		tipoCrittografia.add(cesare);
+		tipoCrittografia.add(vigenere);
+		tipoCrittografia.add(chiave);
+		tipoCrittografia.setBounds(270, 407, 660, 50);
+		tipoCrittografia.setBorder(LineBorder.createBlackLineBorder());
+		tipoCrittografia.setBackground(Color.white);
+		tipoCrittografia.setVisible(false);
+		
 		creaChat = new JButton("Nuova chat");
 		creaChat.addActionListener(this);
+		rimuoviChat = new JButton("Rimuovi chat");
+		rimuoviChat.addActionListener(this);
+		rimuoviChat.setVisible(false);
 		
 		chiudiApplicazione = new JButton("Exit");
 		chiudiApplicazione.addActionListener(this);
@@ -112,6 +135,7 @@ public class SecretSender extends JFrame implements ActionListener{
 		pp.setLayout(new BoxLayout(pp, BoxLayout.Y_AXIS));
 		impostazioniG.setBounds(50, 100, 300, 150);
 		pp.add(creaChat);
+		pp.add(rimuoviChat);
 		pp.add(logout);
 		pp.add(chiudiApplicazione);
 		impostazioniG.add(pp, BorderLayout.CENTER);
@@ -125,6 +149,7 @@ public class SecretSender extends JFrame implements ActionListener{
 		add(ricerca);
 		add(infoChat);
 		add(cronologia);
+		add(tipoCrittografia);
 		add(zonaMessaggio);
 		add(inviaMessaggio);
 		add(scrollPane);
@@ -132,26 +157,16 @@ public class SecretSender extends JFrame implements ActionListener{
 		setVisible(true);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 	}
-	
-	/**
-	 * Classe coppia
-	 * @author francy111
-	 * Usata per accoppiare IP e Porta di un Secret Inbox
-	 */
-	private class Pair{
-		public int port;
-		public String IP;
-		public Pair(String ip, int port) {
-			this.IP = ip;
-			this.port = port;
-		}
-	}
 
 	private void aggiornaChat() {
 		listaChat.removeAll();
-		
-		for(Pair p : inboxes)
-			listaChat.add(new JButton(p.IP + " - " + p.port));
+		JButton tmp;
+		for(Inbox p : inboxes) {
+			tmp = new JButton(p.getIP() + " - " + p.getPorta());
+			tmp.addActionListener(this);
+			tmp.setBounds(1, 1+(inboxes.indexOf(p))*50, 266, 50);
+			listaChat.add(tmp);
+		}
 		listaChat.revalidate();
 		listaChat.repaint();
 	}
@@ -174,21 +189,59 @@ public class SecretSender extends JFrame implements ActionListener{
 		}else if(e.getSource().equals(creaChat)) {
 			String risposta = JOptionPane.showInputDialog(null, "IP e porta Secret Inbox", "Nuova chat",3);
 			try {
-				Pair p;
+				Inbox p;
 				String[] info = risposta.split(" ");
-				p = new Pair(info[0], Integer.valueOf(info[1]));
+				p = new Inbox(info[0], Integer.valueOf(info[1]));
 				if(!contiene(inboxes, p)) inboxes.add(p);
-				else JOptionPane.showMessageDialog(null, "La inbox è già presente", "Errore", 0);
+				else JOptionPane.showMessageDialog(null, "La inbox ï¿½ giï¿½ presente", "Errore", 0);
 				aggiornaChat();
 			}catch(Exception exp) {
 				JOptionPane.showMessageDialog(null, "Inserire correttamente IP e porta", "Errore", 0);
 			}
+		}else if(e.getSource().equals(rimuoviChat)) {
+			System.out.println(inboxes.toString());
+			if(contiene(inboxes,inboxAttuale)) {
+				inboxes.remove(inboxAttuale);
+				System.out.println(inboxes.toString());
+				inboxAttuale= null;
+				
+				infoChat.setText("");
+				infoChat.setVisible(false);
+				cronologia.setVisible(false);
+				zonaMessaggio.setVisible(false);
+				inviaMessaggio.setVisible(false);
+				tipoCrittografia.setVisible(false);
+				if(inboxes.isEmpty()) rimuoviChat.setVisible(false);
+				
+				aggiornaChat();
+			}
+		}
+		else if(e.getSource().equals(cesare)) {
+			chiave.setEnabled(true);
+		}
+		else if(e.getSource().equals(vigenere)) {
+			chiave.setEnabled(true);
+		}
+		else {
+			for(int i = 0; i < listaChat.getComponentCount();i ++) {
+				if(listaChat.getComponent(i).equals(e.getSource())) {
+					rimuoviChat.setVisible(true);
+					inboxAttuale = inboxes.get(i);
+					
+					infoChat.setVisible(true);
+					cronologia.setVisible(true);
+					inviaMessaggio.setVisible(true);
+					zonaMessaggio.setVisible(true);
+					tipoCrittografia.setVisible(true);
+					infoChat.setText(inboxAttuale.getIP() + " - " + inboxAttuale.getPorta());
+				}
+			}
 		}
 	}
-	private static boolean contiene(ArrayList<Pair> a, Pair p) {
+	private static boolean contiene(ArrayList<Inbox> a, Inbox p) {
 		boolean risultato = false;
-		for(Pair coppia : a) {
-			if(coppia.IP.equals(p.IP) && coppia.port == p.port) risultato = true;
+		for(Inbox coppia : a) {
+			if(coppia.getIP().equals(p.getIP()) && coppia.getPorta() == p.getPorta()) risultato = true;
 		}
 		return risultato;
 	}
