@@ -38,9 +38,24 @@ public class SecretSender extends JFrame implements ActionListener{
 	private JRadioButton cesare, vigenere;
 	private JTextField chiave;
 	
+	/**
+	 * Pulsante utilizzato per rimuovere una chat
+	 */
 	private JButton rimuoviChat;
+	
+	/**
+	 * Pulsante utilizzato per creare una nuova chat
+	 */
 	private JButton creaChat;
+	
+	/**
+	 * Pulsante utilizzato per chiudere l'applicazione
+	 */
 	private JButton chiudiApplicazione;
+	
+	/**
+	 * Pulsante utilizzato per eseguire il logout e inserire un nuovo codice agente
+	 */
 	private JButton logout;
 	
 	/**
@@ -48,6 +63,8 @@ public class SecretSender extends JFrame implements ActionListener{
 	 * @param code Codice dell'agente che ha eseguito l'accesso
 	 */
 	public SecretSender(int code) {
+		
+		// Si imposta la dimensioni della finestra
 		super("Secret Sender - Session ID:" + code);
 		setBounds(100, 100, 945, 550);
 		setLayout(null);
@@ -58,7 +75,6 @@ public class SecretSender extends JFrame implements ActionListener{
 		 */
 		this.code = code;
 		inboxes = new ArrayList<>();
-		
 		impostazioni = new JButton("Settings");
 		impostazioni.setBounds(0,0,75,55);
 		impostazioni.addActionListener(this);
@@ -95,6 +111,7 @@ public class SecretSender extends JFrame implements ActionListener{
 		inviaMessaggio = new JButton("Send");
 		inviaMessaggio.setBounds(870,455, 60, 55);
 		inviaMessaggio.setVisible(false);
+		inviaMessaggio.addActionListener(this);
 		
 		chiave = new JTextField();
 		chiave.setPreferredSize(new Dimension(75, 25));
@@ -158,50 +175,71 @@ public class SecretSender extends JFrame implements ActionListener{
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 	}
 
+	/**
+	 * Metodo utilizzato per aggiornare graficamente la
+	 * lista di chiat
+	 */
 	private void aggiornaChat() {
 		listaChat.removeAll();
 		JButton tmp;
+		
+		// Aggiungiamo un pulsante per ogni inbox aggiunto
 		for(Inbox p : inboxes) {
 			tmp = new JButton(p.getIP() + " - " + p.getPorta());
 			tmp.addActionListener(this);
 			tmp.setBounds(1, 1+(inboxes.indexOf(p))*50, 266, 50);
 			listaChat.add(tmp);
 		}
+		
+		// Si ridisegnano i pulsanti
 		listaChat.revalidate();
 		listaChat.repaint();
 	}
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		
+		// Se viene premuto il pulsante delle impostazioni si apre il pannello impostazioni
 		if(e.getSource().equals(impostazioni)) {
 			impostazioniG.setVisible(true);
 		}
+		// Si chiude l'applicazione chiudendo eventuali socket rimaste aperte
 		else if(e.getSource().equals(chiudiApplicazione)) {
 			// si chiude le socket
 			dispose();
 			impostazioniG.dispose();
 		}
+		
+		// Si chiude la finestra attuale (chiudendo le socket) e si ritorna all'applicazione di login
 		else if(e.getSource().equals(logout)) {
 			//chiudere le socket
 			dispose();
 			impostazioniG.dispose();
 			new Login();
-		}else if(e.getSource().equals(creaChat)) {
+		}
+		
+		// Si chiedono le informazioni della inbox da aggiungere alla lista
+		else if(e.getSource().equals(creaChat)) {
 			String risposta = JOptionPane.showInputDialog(null, "IP e porta Secret Inbox", "Nuova chat",3);
 			try {
 				Inbox p;
 				String[] info = risposta.split(" ");
 				p = new Inbox(info[0], Integer.valueOf(info[1]));
-				if(!contiene(inboxes, p)) inboxes.add(p);
+				if(!contiene(inboxes, p)) { 
+					inboxes.add(p);
+				}
 				else JOptionPane.showMessageDialog(null, "La inbox � gi� presente", "Errore", 0);
 				aggiornaChat();
 			}catch(Exception exp) {
 				JOptionPane.showMessageDialog(null, "Inserire correttamente IP e porta", "Errore", 0);
 			}
-		}else if(e.getSource().equals(rimuoviChat)) {
-			System.out.println(inboxes.toString());
+		}
+		
+		// Rimuove la chat attuale
+		else if(e.getSource().equals(rimuoviChat)) {
 			if(contiene(inboxes,inboxAttuale)) {
 				inboxes.remove(inboxAttuale);
+				
 				System.out.println(inboxes.toString());
 				inboxAttuale= null;
 				
@@ -216,12 +254,48 @@ public class SecretSender extends JFrame implements ActionListener{
 				aggiornaChat();
 			}
 		}
+		
+		// Si imposta come tipo di cifratura la cifratura di Cesare, si attiva il campo per inserire la chiave
 		else if(e.getSource().equals(cesare)) {
 			chiave.setEnabled(true);
 		}
+		
+		// Si imposta come tipo di cifratura la cifratura di vigenerè, si attiva il campo per inserire la chiave
 		else if(e.getSource().equals(vigenere)) {
 			chiave.setEnabled(true);
 		}
+		
+		// Si crea un worker che cifra il messaggio e lo invia alla inbox indicata
+		else if(e.getSource().equals(inviaMessaggio)) {
+			if(cesare.isSelected()) {
+				try {
+					if(chiave.getText().isEmpty()) throw new Exception();
+					int key = Integer.valueOf(chiave.getText());
+					
+					BackgroundWorker worker = new BackgroundWorker(inboxAttuale);
+					worker.setUp(code, zonaMessaggio.getText(), ""+key, 0);
+					worker.run();
+					
+				}catch(Exception exp) {
+					JOptionPane.showMessageDialog(null, "Inserire la chiave di cifratura (deve essere un numero)", "Errore", 0);
+				}
+			}else if(vigenere.isSelected()) {
+				try {
+					if(chiave.getText().isEmpty()) throw new Exception();
+					String key = chiave.getText();
+					
+					BackgroundWorker worker = new BackgroundWorker(inboxAttuale);
+					worker.setUp(code, zonaMessaggio.getText(), key, 1);
+					worker.run();
+				}catch(Exception exp) {
+					JOptionPane.showMessageDialog(null, "Inserire la chiave di cifratura (deve essere un numero)", "Errore", 0);
+				}
+			}else {
+				JOptionPane.showMessageDialog(null, "Selezionare un tipo di cifratura", "Attenzione", 1);
+			}
+		}
+		
+		// Si imposta come chat attuale quella premuta
 		else {
 			for(int i = 0; i < listaChat.getComponentCount();i ++) {
 				if(listaChat.getComponent(i).equals(e.getSource())) {
@@ -238,9 +312,17 @@ public class SecretSender extends JFrame implements ActionListener{
 			}
 		}
 	}
+	
+	/**
+	 * Funzione utilizzata per controllare se la lista di inbox contiente una inbox specifica
+	 * @param a ArrayList che contiene tutte le inbox
+	 * @param p Inbox che andiamo a cercare
+	 * @return True - Inbox presente, False - Inbox non trovata
+	 */
 	private static boolean contiene(ArrayList<Inbox> a, Inbox p) {
 		boolean risultato = false;
 		for(Inbox coppia : a) {
+			// Si controlla l'IP e la porta dell'inbox
 			if(coppia.getIP().equals(p.getIP()) && coppia.getPorta() == p.getPorta()) risultato = true;
 		}
 		return risultato;

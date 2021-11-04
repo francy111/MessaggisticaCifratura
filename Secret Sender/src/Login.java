@@ -30,7 +30,7 @@ public class Login extends JFrame implements ActionListener{
 	private JLabel codice;
 	
 	/**
-	 * Campo di testo in cui si dovrà inserire il codice dell'agente
+	 * Campo di testo in cui si dovrï¿½ inserire il codice dell'agente
 	 */
 	private JTextPane codiceAgente;
 	
@@ -51,8 +51,8 @@ public class Login extends JFrame implements ActionListener{
 		
 		/* La text pane accetta un massimo di 4
 		 * caratteri (il codice dell'agente sono solo 4 numeri).
-		 * Se si prova a digitare qualcosa dopo 4 caratteri non verrà aggiunto niente
-		 * alla stringa già esistente.
+		 * Se si prova a digitare qualcosa dopo 4 caratteri non verrï¿½ aggiunto niente
+		 * alla stringa giï¿½ esistente.
 		 * 
 		 * Per realizzare questo si esegue l'override di insertString, per
 		 * impedire di far inserire caratteri dopo aver raggiunto lunghezza 4.
@@ -113,11 +113,13 @@ public class Login extends JFrame implements ActionListener{
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource().equals(confermaCodice)) {
 			try {
-				if(codiceAgente.getText().length()<4) throw new Exception();
-				int code = Integer.parseInt(codiceAgente.getText());
+				if(codiceAgente.getText().length()<4) JOptionPane.showMessageDialog(null, "Inserire un codice di 4 cifre", "Errore", 0);
+				else {
+					int code = Integer.parseInt(codiceAgente.getText());
 				
-				new SecretSender(code);
-				dispose();
+					new SecretSender(code);
+					dispose();
+				}
 			}catch(Exception exp) {
 				JOptionPane.showMessageDialog(null, "Il codice deve contenere solo cifre da 0 a 9", "Errore", 0);
 			}
