@@ -60,6 +60,11 @@ public class SecretSender extends JFrame implements ActionListener{
 	private JButton logout;
 	
 	/**
+	 * Pannello temporaneo per quando non ci sono chat avviate
+	 */
+	private JPanel temp;
+	
+	/**
 	 * Tema dell'applicazione
 	 * True - Tema scuro
 	 * Falso - Tema chiaro
@@ -164,6 +169,12 @@ public class SecretSender extends JFrame implements ActionListener{
 		setVisible(false);
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		
+		temp = new JPanel();
+		temp.setBounds(275, 5, 650, 505);
+		temp.setBorder(LineBorder.createBlackLineBorder());
+		temp.setBackground(Color.white);
+		temp.add(new JLabel("Seleziona una Inbox per inviare messaggi"));
+		
 		/* Aggiunta dei componenti alla
 		 * finestra
 		 */
@@ -173,10 +184,11 @@ public class SecretSender extends JFrame implements ActionListener{
 		add(tipoCrittografia);
 		add(zonaMessaggio);
 		add(inviaMessaggio);
+		add(temp);
 		add(scrollPane);
 		
 		setVisible(true);
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 	}
 
 	/**
@@ -258,7 +270,7 @@ public class SecretSender extends JFrame implements ActionListener{
 				inviaMessaggio.setVisible(false);
 				tipoCrittografia.setVisible(false);
 				if(inboxes.isEmpty()) rimuoviChat.setVisible(false);
-				
+				temp.setVisible(true);
 				aggiornaChat();
 			}
 		}
@@ -332,6 +344,8 @@ public class SecretSender extends JFrame implements ActionListener{
 					cronologia.setVisible(true);
 					inviaMessaggio.setVisible(true);
 					zonaMessaggio.setVisible(true);
+
+					temp.setVisible(false);
 					tipoCrittografia.setVisible(true);
 					infoChat.setText(inboxAttuale.getIP() + " - " + inboxAttuale.getPorta());
 				}
