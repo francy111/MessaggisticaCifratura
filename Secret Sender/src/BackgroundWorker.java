@@ -1,3 +1,8 @@
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 /**
  * Classe background worker
  * @author francy111
@@ -32,11 +37,21 @@ public class BackgroundWorker{
 	private Inbox inbox;
 	
 	/**
+	 * Socket da utilizzare per contattare l'inbox
+	 */
+	private DatagramSocket socket;
+	
+	/**
 	 * Costruttore default
 	 * @param inbox Inbox (IP/porta)
 	 */
 	public BackgroundWorker(Inbox inbox) {
 		this.inbox = new Inbox(inbox.getIP(), inbox.getPorta());
+		try {
+			socket = new DatagramSocket();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -60,8 +75,17 @@ public class BackgroundWorker{
 	 * la chiude, in quanto non deve aspettare nessuna
 	 * risposta
 	 */
-	public void run() {
+	public void exec() {
 		byte[] msg = cifraMessaggio(o_message, chiave);
+		
+		try {
+			DatagramPacket p = new DatagramPacket(msg, msg.length, InetAddress.getByName(inbox.getIP()),inbox.getPorta());
+			socket.send(p);
+			
+			socket.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -74,8 +98,10 @@ public class BackgroundWorker{
 		byte[] msgCriptato;
 		if(tipoCrittografia == 0) {
 			msgCriptato = cifraturaCesare(msg, Integer.valueOf(chiave));
-		}else{
+		}else if(tipoCrittografia == 1){
 			msgCriptato = cifraturaVigenere(msg, chiave);
+		} else {
+			msgCriptato = msg;
 		}
 		return msgCriptato;
 	}
@@ -118,10 +144,6 @@ public class BackgroundWorker{
 	 */
 	private void inviaMessaggio(byte[] msg) {}
 	
-	/**
-	 * Metodo utilizzato per chiudere la socket
-	 */
-	public void ferma() {}
 	
 	
 	

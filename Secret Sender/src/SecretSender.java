@@ -1,7 +1,9 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
-
+import java.util.Scanner;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 
@@ -27,7 +29,6 @@ public class SecretSender extends JFrame implements ActionListener{
 	private ArrayList<Inbox> inboxes;
 	private Inbox inboxAttuale = null;
 	private JButton impostazioni;
-	private JTextField ricerca;
 	private JTextField infoChat;
 	private JPanel listaChat;
 	private JTextArea cronologia;
@@ -59,6 +60,13 @@ public class SecretSender extends JFrame implements ActionListener{
 	private JButton logout;
 	
 	/**
+	 * Tema dell'applicazione
+	 * True - Tema scuro
+	 * Falso - Tema chiaro
+	 */
+	private boolean darkTheme;
+	
+	/**
 	 * Costruttore default
 	 * @param code Codice dell'agente che ha eseguito l'accesso
 	 */
@@ -69,6 +77,7 @@ public class SecretSender extends JFrame implements ActionListener{
 		setBounds(100, 100, 945, 550);
 		setLayout(null);
 		setResizable(false);
+		
 		setBackground(Color.white);
 		
 		/* Inizializzazione attributi
@@ -76,12 +85,8 @@ public class SecretSender extends JFrame implements ActionListener{
 		this.code = code;
 		inboxes = new ArrayList<>();
 		impostazioni = new JButton("Settings");
-		impostazioni.setBounds(0,0,75,55);
+		impostazioni.setBounds(0,0,273,55);
 		impostazioni.addActionListener(this);
-		
-		ricerca = new JTextField();
-		ricerca.setBounds(75,0,198,56);
-		ricerca.setText("Ricerca");
 		
 		infoChat = new JTextField();
 		infoChat.setBounds(270,0,660,56);
@@ -163,7 +168,6 @@ public class SecretSender extends JFrame implements ActionListener{
 		 * finestra
 		 */
 		add(impostazioni);
-		add(ricerca);
 		add(infoChat);
 		add(cronologia);
 		add(tipoCrittografia);
@@ -220,16 +224,20 @@ public class SecretSender extends JFrame implements ActionListener{
 		
 		// Si chiedono le informazioni della inbox da aggiungere alla lista
 		else if(e.getSource().equals(creaChat)) {
-			String risposta = JOptionPane.showInputDialog(null, "IP e porta Secret Inbox", "Nuova chat",3);
+			String risposta = JOptionPane.showInputDialog(null, "IP Secret Inbox", "Nuova chat",3);
 			try {
 				Inbox p;
-				String[] info = risposta.split(" ");
-				p = new Inbox(info[0], Integer.valueOf(info[1]));
+				p = new Inbox();
+				p.setIP(risposta);
+				int porta = Integer.parseInt((JOptionPane.showInputDialog(null, "Porta Secret Inbox", "Nuova chat",3)));
+				if(porta<50000 || porta>65535) throw new Exception();
+				p.setPorta(porta);
 				if(!contiene(inboxes, p)) { 
 					inboxes.add(p);
 				}
 				else JOptionPane.showMessageDialog(null, "La inbox � gi� presente", "Errore", 0);
 				aggiornaChat();
+				impostazioniG.dispose();
 			}catch(Exception exp) {
 				JOptionPane.showMessageDialog(null, "Inserire correttamente IP e porta", "Errore", 0);
 			}
@@ -258,11 +266,13 @@ public class SecretSender extends JFrame implements ActionListener{
 		// Si imposta come tipo di cifratura la cifratura di Cesare, si attiva il campo per inserire la chiave
 		else if(e.getSource().equals(cesare)) {
 			chiave.setEnabled(true);
+			chiave.setText("");
 		}
 		
 		// Si imposta come tipo di cifratura la cifratura di vigenerè, si attiva il campo per inserire la chiave
 		else if(e.getSource().equals(vigenere)) {
 			chiave.setEnabled(true);
+			chiave.setText("");
 		}
 		
 		// Si crea un worker che cifra il messaggio e lo invia alla inbox indicata
@@ -274,24 +284,39 @@ public class SecretSender extends JFrame implements ActionListener{
 					
 					BackgroundWorker worker = new BackgroundWorker(inboxAttuale);
 					worker.setUp(code, zonaMessaggio.getText(), ""+key, 0);
-					worker.run();
-					
+					worker.exec();
+
+					cronologia.setText(cronologia.getText()+zonaMessaggio.getText()+"\n");
+					zonaMessaggio.setText("");
 				}catch(Exception exp) {
 					JOptionPane.showMessageDialog(null, "Inserire la chiave di cifratura (deve essere un numero)", "Errore", 0);
 				}
 			}else if(vigenere.isSelected()) {
 				try {
 					if(chiave.getText().isEmpty()) throw new Exception();
-					String key = chiave.getText();
-					
-					BackgroundWorker worker = new BackgroundWorker(inboxAttuale);
-					worker.setUp(code, zonaMessaggio.getText(), key, 1);
-					worker.run();
+					if(chiave.getText().length()!=5)
+						JOptionPane.showMessageDialog(null, "La chiave deve essere una parola di 5 caratteri", "Errore", 0);
+					else {
+						String key = chiave.getText();
+						BackgroundWorker worker = new BackgroundWorker(inboxAttuale);
+						worker.setUp(code, zonaMessaggio.getText(), key, 1);
+						worker.exec();
+						
+					cronologia.setText(cronologia.getText()+zonaMessaggio.getText()+"\n");
+						zonaMessaggio.setText("");
+					}
 				}catch(Exception exp) {
 					JOptionPane.showMessageDialog(null, "Inserire la chiave di cifratura (deve essere un numero)", "Errore", 0);
 				}
 			}else {
-				JOptionPane.showMessageDialog(null, "Selezionare un tipo di cifratura", "Attenzione", 1);
+				int res = JOptionPane.showConfirmDialog(null, "Sicuro di inviare il messaggio senza cifratura?", "Attenzione", 1);
+				if (res==JOptionPane.YES_OPTION) {
+					BackgroundWorker worker = new BackgroundWorker(inboxAttuale);
+					worker.setUp(code, zonaMessaggio.getText(), null, -1);
+					worker.exec();
+					cronologia.setText(cronologia.getText()+zonaMessaggio.getText()+"\n");
+					zonaMessaggio.setText("");
+				}
 			}
 		}
 		
@@ -301,7 +326,8 @@ public class SecretSender extends JFrame implements ActionListener{
 				if(listaChat.getComponent(i).equals(e.getSource())) {
 					rimuoviChat.setVisible(true);
 					inboxAttuale = inboxes.get(i);
-					
+					cronologia.setText("");
+					zonaMessaggio.setText("Scrivi un messaggio...");
 					infoChat.setVisible(true);
 					cronologia.setVisible(true);
 					inviaMessaggio.setVisible(true);

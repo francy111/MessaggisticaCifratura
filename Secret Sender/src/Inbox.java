@@ -6,6 +6,7 @@
 public class Inbox{
 	private int port;
 	private String IP;
+	public Inbox() {}
 	public Inbox(String ip, int port) {
 		this.IP = ip;
 		this.port = port;
