@@ -1,9 +1,6 @@
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Scanner;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 
@@ -18,25 +15,76 @@ import javax.swing.border.LineBorder;
  * Digitare il messaggio da inviare
  * Selezionare la modalità di cifratura
  */
-public class SecretSender extends JFrame implements ActionListener{
-	private static final long serialVersionUID = 1L;
-			
+public class SecretSender extends JFrame implements ActionListener {
+	
 	/**
-	 * Attributi 
+	 * ID di versione seriale
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	/**
+	 * Frame principale
 	 */
 	private JFrame impostazioniG;
+	
+	/**
+	 * Codice agente
+	 */
 	private int code;
+	
+	/**
+	 * Lista di tutte le inbox al quale si inviano messaggi
+	 */
 	private ArrayList<Inbox> inboxes;
+	
+	/**
+	 * Inbox attuale
+	 */
 	private Inbox inboxAttuale = null;
+	
+	/**
+	 * Finestra delle impostazioni
+	 */
 	private JButton impostazioni;
+	
+	/**
+	 * Zona di testo in cui viene ripostato l'IP e la porta della inbox alla quale inviamo messaggi
+	 */
 	private JTextField infoChat;
+	
+	/**
+	 * Pannello in cui troviamo tutte le chat avviate
+	 */
 	private JPanel listaChat;
+	
+	/**
+	 * Area di testo in cui rimangono i messaggi inviati alla inbox, visualizzati senza cifratura
+	 */
 	private JTextArea cronologia;
+	
+	/**
+	 * Area di testo in cui scrivere il messaggio da inviare
+	 */
 	private JTextField zonaMessaggio;
+	
+	/**
+	 * Pannello che comprende i pulsanti radio e il campo della chiabe
+	 */
 	private JPanel tipoCrittografia;
+	
+	/**
+	 * Pulsante utilizzato per inviare il messaggio alla inbox
+	 */
 	private JButton inviaMessaggio;
 	
+	/**
+	 * Pulsanti radio per scegliere l'algoritmo di cifratura
+	 */
 	private JRadioButton cesare, vigenere;
+	
+	/**
+	 * Zona di testo in cui inserire la chiave di cifratura
+	 */
 	private JTextField chiave;
 	
 	/**
@@ -64,12 +112,6 @@ public class SecretSender extends JFrame implements ActionListener{
 	 */
 	private JPanel temp;
 	
-	/**
-	 * Tema dell'applicazione
-	 * True - Tema scuro
-	 * Falso - Tema chiaro
-	 */
-	private boolean darkTheme;
 	
 	/**
 	 * Costruttore default
