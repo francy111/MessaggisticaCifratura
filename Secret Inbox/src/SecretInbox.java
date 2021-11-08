@@ -1,8 +1,17 @@
 import java.awt.*;
-import java.util.ArrayList;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.net.DatagramSocket;
+import java.util.LinkedList;
 
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultStyledDocument;
 /**
  * Classe secret inbox
  * @author francy111
@@ -14,7 +23,7 @@ import javax.swing.border.LineBorder;
  * Scegliere l'algoritmo e chiave di decifratura
  * Provare brute force
  */
-public class SecretInbox extends JFrame{
+public class SecretInbox extends JFrame implements ActionListener{
 
 	/**
 	 * ID di versione seriale
@@ -42,11 +51,7 @@ public class SecretInbox extends JFrame{
 	/**
 	 * Contiene i componenti per ricevere, mostrare e selezionare i messaggi
 	 */
-	private JPanel panel_Msg;
-	/**
-	 * Pannello con barra di scorrimento
-	 */
-	private JScrollPane scrollPane_Msg;
+	private JScrollPane panel_Msg;
 	/**
 	 * Pannello per contenere i pulsanti
 	 */
@@ -54,7 +59,7 @@ public class SecretInbox extends JFrame{
 	/**
 	 * Lista contenente ogni messaggio ricevuto
 	 */
-	private ArrayList<JButton> messaggi;
+	private LinkedList<JButton> messaggi;
 	/**
 	 * Messaggio selezionato per la decifratura
 	 */
@@ -88,11 +93,21 @@ public class SecretInbox extends JFrame{
 	/**
 	 * Campo di testo per inserire la chiave di decifratura
 	 */
-	private JTextField textField_chiave;
+	private JTextField textField_chiaveCesare;
+	private JTextPane textField_chiaveVigenere;
+	/**
+	 * Pulsante per eseguire la decifratura
+	 */
+	private JButton button_decifra;
 	/**
 	 * Pulsante per eseguire la Brute Force
 	 */
 	private JButton button_BruteForce;
+	
+	/**
+	 * Socket per la ricezione di messaggi
+	 */
+	private DatagramSocket socketAscolto;
 	
 	/**
 	 * Costruttore default
@@ -110,6 +125,7 @@ public class SecretInbox extends JFrame{
 		textField_portaAscolto = new JTextField();
 		textField_portaAscolto.setPreferredSize(new Dimension(75, 25));
 		button_impostaPorta = new JButton("Utilizza porta");
+		button_impostaPorta.addActionListener(this);
 		
 		panel_Porta.add(label_portaAscolto);
 		panel_Porta.add(textField_portaAscolto);
@@ -119,13 +135,64 @@ public class SecretInbox extends JFrame{
 		panel_Decifra = new JPanel();
 		panel_Decifra.setBorder(LineBorder.createBlackLineBorder());
 		panel_Decifra.setBounds(10, 120, 175, 350);
+		label_decifratura = new JLabel("Algoritmo di decifratura");
+		rbutton_cesare = new JRadioButton("Cesare");
+		rbutton_cesare.addActionListener(this);
+		rbutton_vigenere = new JRadioButton("Vigenère");
+		rbutton_vigenere.addActionListener(this);
+		rgroup_algoritmo = new ButtonGroup();
+		rgroup_algoritmo.add(rbutton_cesare);
+		rgroup_algoritmo.add(rbutton_vigenere);
+		label_chiave = new JLabel("Chiave di decifratura");
+		textField_chiaveCesare = new JTextField();
+		textField_chiaveCesare.setPreferredSize(new Dimension(75, 25));
+		textField_chiaveVigenere = new JTextPane(
+				new DefaultStyledDocument() {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void insertString(int offs, String str, AttributeSet a) {
+						if((getLength() + str.length()) <= 5)
+							try {
+								super.insertString(offs, str, a);
+							} catch (BadLocationException e) {
+								e.printStackTrace();
+							}
+					}
+				}
+		);
+		textField_chiaveVigenere.setPreferredSize(new Dimension(75, 25));
+		textField_chiaveVigenere.setVisible(false);
+		button_decifra = new JButton("Decifra messaggio");
+		button_decifra.addActionListener(this);
+		button_BruteForce = new JButton("!");
+		button_BruteForce.setForeground(Color.red);
+		button_BruteForce.addActionListener(this);
 		
+		JLabel tmp1 = new JLabel(), tmp2 = new JLabel(), tmp3 = new JLabel();
+		tmp1.setBorder(new CompoundBorder(tmp1.getBorder(), new EmptyBorder(10,80,10,80)));
+		tmp2.setBorder(new CompoundBorder(tmp2.getBorder(), new EmptyBorder(10,120,10,120)));
+		tmp3.setBorder(new CompoundBorder(tmp3.getBorder(), new EmptyBorder(10,120,10,120)));
+		panel_Decifra.add(new JLabel("Decifratura messaggio"));
+		panel_Decifra.add(tmp1);
+		panel_Decifra.add(label_decifratura);
+		panel_Decifra.add(rbutton_cesare);
+		panel_Decifra.add(rbutton_vigenere);
+		panel_Decifra.add(tmp2);
+		panel_Decifra.add(label_chiave);
+		panel_Decifra.add(textField_chiaveCesare);
+		panel_Decifra.add(textField_chiaveVigenere);
+		panel_Decifra.add(button_decifra);
+		panel_Decifra.add(tmp3);
+		panel_Decifra.add(button_BruteForce);
 		
-		panel_Msg = new JPanel();
+		panel_Interno = new JPanel();
+		panel_Interno.setLayout(new BoxLayout(panel_Interno, BoxLayout.Y_AXIS));
+		panel_Msg = new JScrollPane(panel_Interno);
 		panel_Msg.setBorder(LineBorder.createBlackLineBorder());
 		panel_Msg.setBounds(195, 10, 550, 460);
-		
-		
+		messaggi = new LinkedList<JButton>();
+		msg = null;
 		
 		add(panel_Porta);
 		add(panel_Decifra);
@@ -135,4 +202,35 @@ public class SecretInbox extends JFrame{
 	}
 	
 	public static void main(String[] args) { new SecretInbox(); }
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if(e.getSource().equals(button_impostaPorta)) {
+			int porta;
+			try {
+				porta = Integer.parseInt(textField_portaAscolto.getText());
+			} catch(Exception exp) {
+				JOptionPane.showMessageDialog(null, "La porta deve essere un numero", "Errore", 0);
+			}
+		}
+		else if(e.getSource().equals(rbutton_cesare)) {
+			textField_chiaveCesare.setVisible(true);
+			textField_chiaveCesare.setText("");
+			textField_chiaveVigenere.setVisible(false);
+			textField_chiaveVigenere.setText("");
+		}
+		else if(e.getSource().equals(rbutton_vigenere)) {
+			textField_chiaveCesare.setVisible(false);
+			textField_chiaveCesare.setText("");
+			textField_chiaveVigenere.setVisible(true);
+			textField_chiaveVigenere.setText("");
+			
+		}
+		else if(e.getSource().equals(button_decifra)) {
+			
+		}
+		else if(e.getSource().equals(button_BruteForce)) {
+			
+		}
+	}
 }

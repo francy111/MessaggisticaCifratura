@@ -1,23 +1,26 @@
-import java.awt.*;
-import java.awt.event.*;
-import java.util.ArrayList;
-import javax.swing.*;
-import javax.swing.border.LineBorder;
-
-/**
- * Classe secret sender
- * @author francy111
- * @version 1.0
- * Conterrà le funzionalità del secret sender
- * 
- * Inserire codice agente
- * Inserire IP-Porta secret inbox
- * Digitare il messaggio da inviare
- * Selezionare la modalità di cifratura
- */
-public class SecretSender extends JFrame implements ActionListener {
+	import java.awt.*;
+	import java.awt.event.*;
+	import java.util.ArrayList;
+	import javax.swing.*;
+	import javax.swing.border.LineBorder;
+	import javax.swing.text.AttributeSet;
+	import javax.swing.text.BadLocationException;
+	import javax.swing.text.DefaultStyledDocument;
 	
 	/**
+	 * Classe secret sender
+	 * @author francy111
+	 * @version 1.0
+	 * Conterrà le funzionalità del secret sender
+	 * 
+	 * Inserire codice agente
+	 * Inserire IP-Porta secret inbox
+	 * Digitare il messaggio da inviare
+	 * Selezionare la modalità di cifratura
+	 */
+	public class SecretSender extends JFrame implements ActionListener {
+		
+		/**
 	 * ID di versione seriale
 	 */
 	private static final long serialVersionUID = 1L;
@@ -65,7 +68,7 @@ public class SecretSender extends JFrame implements ActionListener {
 	/**
 	 * Area di testo in cui scrivere il messaggio da inviare
 	 */
-	private JTextField zonaMessaggio;
+	private JTextPane zonaMessaggio;
 	
 	/**
 	 * Pannello che comprende i pulsanti radio e il campo della chiabe
@@ -155,8 +158,23 @@ public class SecretSender extends JFrame implements ActionListener {
 		cronologia.setVisible(false);
 		cronologia.setEnabled(false);
 		
-		zonaMessaggio = new JTextField();
-		zonaMessaggio.setBounds(270,455,601,57);
+		zonaMessaggio = new JTextPane(
+				new DefaultStyledDocument() {
+					private static final long serialVersionUID = 1L;
+	
+					@Override
+					public void insertString(int offs, String str, AttributeSet a) {
+						if((getLength() + str.length()) <= 512)
+							try {
+								super.insertString(offs, str, a);
+							} catch (BadLocationException e) {
+								e.printStackTrace();
+							}
+					}
+				}
+		);
+		zonaMessaggio.setBounds(272,458,598,50);
+		zonaMessaggio.setBorder(LineBorder.createBlackLineBorder());
 		zonaMessaggio.setText("Scrivi un messaggio...");
 		zonaMessaggio.setVisible(false);
 		
@@ -232,7 +250,7 @@ public class SecretSender extends JFrame implements ActionListener {
 		setVisible(true);
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 	}
-
+	
 	/**
 	 * Metodo utilizzato per aggiornare graficamente la
 	 * lista di chiat
@@ -331,47 +349,51 @@ public class SecretSender extends JFrame implements ActionListener {
 		
 		// Si crea un worker che cifra il messaggio e lo invia alla inbox indicata
 		else if(e.getSource().equals(inviaMessaggio)) {
-			if(cesare.isSelected()) {
-				try {
-					if(chiave.getText().isEmpty()) throw new Exception();
-					int key = Integer.valueOf(chiave.getText());
-					
-					BackgroundWorker worker = new BackgroundWorker(inboxAttuale);
-					worker.setUp(code, zonaMessaggio.getText(), ""+key, 0);
-					worker.exec();
-
-					cronologia.setText(cronologia.getText()+zonaMessaggio.getText()+"\n");
-					zonaMessaggio.setText("");
-				}catch(Exception exp) {
-					JOptionPane.showMessageDialog(null, "Inserire la chiave di cifratura (deve essere un numero)", "Errore", 0);
-				}
-			}else if(vigenere.isSelected()) {
-				try {
-					if(chiave.getText().isEmpty()) throw new Exception();
-					if(chiave.getText().length()!=5)
-						JOptionPane.showMessageDialog(null, "La chiave deve essere una parola di 5 caratteri", "Errore", 0);
-					else {
-						String key = chiave.getText();
-						BackgroundWorker worker = new BackgroundWorker(inboxAttuale);
-						worker.setUp(code, zonaMessaggio.getText(), key, 1);
-						worker.exec();
+			if (zonaMessaggio.getText().isEmpty());
+			else {
+				if(cesare.isSelected()) {
+					try {
+						if(chiave.getText().isEmpty()) throw new Exception();
+						int key = Integer.valueOf(chiave.getText());
 						
-					cronologia.setText(cronologia.getText()+zonaMessaggio.getText()+"\n");
+						BackgroundWorker worker = new BackgroundWorker(inboxAttuale);
+						worker.setUp(code, zonaMessaggio.getText(), ""+key, 0);
+						worker.exec();
+		
+						cronologia.setText(cronologia.getText()+zonaMessaggio.getText()+"\n");
+						zonaMessaggio.setText("");
+					}catch(Exception exp) {
+						JOptionPane.showMessageDialog(null, "Inserire la chiave di cifratura (deve essere un numero)", "Errore", 0);
+					}
+				}else if(vigenere.isSelected()) {
+					try {
+						if(chiave.getText().isEmpty()) throw new Exception();
+						if(chiave.getText().length()!=5)
+							JOptionPane.showMessageDialog(null, "La chiave deve essere una parola di 5 caratteri", "Errore", 0);
+						else {
+							String key = chiave.getText();
+							BackgroundWorker worker = new BackgroundWorker(inboxAttuale);
+							worker.setUp(code, zonaMessaggio.getText(), key, 1);
+							worker.exec();
+							
+						cronologia.setText(cronologia.getText()+zonaMessaggio.getText()+"\n");
+							zonaMessaggio.setText("");
+						}
+					}catch(Exception exp) {
+						JOptionPane.showMessageDialog(null, "Inserire la chiave di cifratura (deve essere un numero)", "Errore", 0);
+					}
+				}else {
+					int res = JOptionPane.showConfirmDialog(null, "Sicuro di inviare il messaggio senza cifratura?", "Attenzione", 1);
+					if (res==JOptionPane.YES_OPTION) {
+						BackgroundWorker worker = new BackgroundWorker(inboxAttuale);
+						worker.setUp(code, zonaMessaggio.getText(), null, -1);
+						worker.exec();
+						cronologia.setText(cronologia.getText()+zonaMessaggio.getText()+"\n");
 						zonaMessaggio.setText("");
 					}
-				}catch(Exception exp) {
-					JOptionPane.showMessageDialog(null, "Inserire la chiave di cifratura (deve essere un numero)", "Errore", 0);
-				}
-			}else {
-				int res = JOptionPane.showConfirmDialog(null, "Sicuro di inviare il messaggio senza cifratura?", "Attenzione", 1);
-				if (res==JOptionPane.YES_OPTION) {
-					BackgroundWorker worker = new BackgroundWorker(inboxAttuale);
-					worker.setUp(code, zonaMessaggio.getText(), null, -1);
-					worker.exec();
-					cronologia.setText(cronologia.getText()+zonaMessaggio.getText()+"\n");
-					zonaMessaggio.setText("");
 				}
 			}
+				
 		}
 		
 		// Si imposta come chat attuale quella premuta
@@ -386,7 +408,7 @@ public class SecretSender extends JFrame implements ActionListener {
 					cronologia.setVisible(true);
 					inviaMessaggio.setVisible(true);
 					zonaMessaggio.setVisible(true);
-
+	
 					temp.setVisible(false);
 					tipoCrittografia.setVisible(true);
 					infoChat.setText(inboxAttuale.getIP() + " - " + inboxAttuale.getPorta());
@@ -405,8 +427,8 @@ public class SecretSender extends JFrame implements ActionListener {
 		boolean risultato = false;
 		for(Inbox coppia : a) {
 			// Si controlla l'IP e la porta dell'inbox
-			if(coppia.getIP().equals(p.getIP()) && coppia.getPorta() == p.getPorta()) risultato = true;
+				if(coppia.getIP().equals(p.getIP()) && coppia.getPorta() == p.getPorta()) risultato = true;
+			}
+			return risultato;
 		}
-		return risultato;
 	}
-}
