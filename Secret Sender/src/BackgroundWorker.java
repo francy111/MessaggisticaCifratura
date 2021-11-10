@@ -137,34 +137,4 @@ public class BackgroundWorker{
 		
 		return  cifrato;
 	}
-	
-	/**
-	 * Metodo utilizzato per inviare il messaggio alla inbox
-	 * @param msg Messaggio cifrato da inviare
-	 */
-	private void inviaMessaggio(byte[] msg) {}
-	
-	
-	
-	
-	
-	
-	
-	public byte[] decifraCesare(byte[] msg, int chiave) {
-		byte[] res = new byte[msg.length];
-		byte key = (byte)(chiave%255);
-		for(int i = 0; i < msg.length; i++)
-			res[i] = (byte)(msg[i] - key);
-		
-		return res;
-	}
-	public byte[] decifraVigenere(byte[] msg, String chiave) {
-		byte[] res = new byte[msg.length];
-		byte[] key = chiave.getBytes();
-		
-		for(int i = 0; i < msg.length; i++)
-			res[i] = (byte)(msg[i] - key[i%key.length]);
-		
-		return res;
-	}
 }

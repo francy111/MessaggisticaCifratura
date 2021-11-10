@@ -68,7 +68,7 @@
 	/**
 	 * Area di testo in cui scrivere il messaggio da inviare
 	 */
-	private JTextPane zonaMessaggio;
+	private JTextArea zonaMessaggio;
 	
 	/**
 	 * Pannello che comprende i pulsanti radio e il campo della chiabe
@@ -157,8 +157,9 @@
 		cronologia.setBounds(270,55,660,350);
 		cronologia.setVisible(false);
 		cronologia.setEnabled(false);
+		cronologia.setLineWrap(true);
 		
-		zonaMessaggio = new JTextPane(
+		zonaMessaggio = new JTextArea(
 				new DefaultStyledDocument() {
 					private static final long serialVersionUID = 1L;
 	
@@ -173,10 +174,13 @@
 					}
 				}
 		);
-		zonaMessaggio.setBounds(272,458,598,50);
-		zonaMessaggio.setBorder(LineBorder.createBlackLineBorder());
 		zonaMessaggio.setText("Scrivi un messaggio...");
+		zonaMessaggio.setLineWrap(true);
 		zonaMessaggio.setVisible(false);
+		
+		JScrollPane p = new JScrollPane(zonaMessaggio);
+		p.setBounds(272,458,598,50);
+		p.setBorder(LineBorder.createBlackLineBorder());
 		
 		inviaMessaggio = new JButton("Send");
 		inviaMessaggio.setBounds(870,455, 60, 55);
@@ -242,7 +246,7 @@
 		add(infoChat);
 		add(cronologia);
 		add(tipoCrittografia);
-		add(zonaMessaggio);
+		add(p);
 		add(inviaMessaggio);
 		add(temp);
 		add(scrollPane);
@@ -363,13 +367,13 @@
 						cronologia.setText(cronologia.getText()+zonaMessaggio.getText()+"\n");
 						zonaMessaggio.setText("");
 					}catch(Exception exp) {
-						JOptionPane.showMessageDialog(null, "Inserire la chiave di cifratura (deve essere un numero)", "Errore", 0);
+						JOptionPane.showMessageDialog(null, "Inserire la chiave di cifratura (deve essere un numero)", "Errore", JOptionPane.ERROR_MESSAGE);
 					}
 				}else if(vigenere.isSelected()) {
 					try {
 						if(chiave.getText().isEmpty()) throw new Exception();
 						if(chiave.getText().length()!=5)
-							JOptionPane.showMessageDialog(null, "La chiave deve essere una parola di 5 caratteri", "Errore", 0);
+							JOptionPane.showMessageDialog(null, "La chiave deve essere una parola di 5 caratteri", "Errore", JOptionPane.ERROR_MESSAGE);
 						else {
 							String key = chiave.getText();
 							BackgroundWorker worker = new BackgroundWorker(inboxAttuale);
@@ -380,10 +384,10 @@
 							zonaMessaggio.setText("");
 						}
 					}catch(Exception exp) {
-						JOptionPane.showMessageDialog(null, "Inserire la chiave di cifratura (deve essere un numero)", "Errore", 0);
+						JOptionPane.showMessageDialog(null, "Inserire la chiave di cifratura (deve essere un numero)", "Errore", JOptionPane.ERROR_MESSAGE);
 					}
 				}else {
-					int res = JOptionPane.showConfirmDialog(null, "Sicuro di inviare il messaggio senza cifratura?", "Attenzione", 1);
+					int res = JOptionPane.showConfirmDialog(null, "Sicuro di inviare il messaggio senza cifratura?", "Attenzione", JOptionPane.WARNING_MESSAGE);
 					if (res==JOptionPane.YES_OPTION) {
 						BackgroundWorker worker = new BackgroundWorker(inboxAttuale);
 						worker.setUp(code, zonaMessaggio.getText(), null, -1);

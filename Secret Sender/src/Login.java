@@ -113,7 +113,7 @@ public class Login extends JFrame implements ActionListener{
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource().equals(confermaCodice)) {
 			try {
-				if(codiceAgente.getText().length()<4) JOptionPane.showMessageDialog(null, "Inserire un codice di 4 cifre", "Errore", 0);
+				if(codiceAgente.getText().length()<4) JOptionPane.showMessageDialog(null, "Inserire un codice di 4 cifre", "Errore", JOptionPane.ERROR_MESSAGE);
 				else {
 					int code = Integer.parseInt(codiceAgente.getText());
 				
@@ -121,7 +121,7 @@ public class Login extends JFrame implements ActionListener{
 					dispose();
 				}
 			}catch(Exception exp) {
-				JOptionPane.showMessageDialog(null, "Il codice deve contenere solo cifre da 0 a 9", "Errore", 0);
+				JOptionPane.showMessageDialog(null, "Il codice deve contenere solo cifre da 0 a 9", "Errore", JOptionPane.ERROR_MESSAGE);
 			}
 		}
 	}

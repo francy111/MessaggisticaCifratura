@@ -2,6 +2,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.DatagramSocket;
+import java.util.Base64;
 import java.util.LinkedList;
 
 import javax.swing.*;
@@ -46,6 +47,10 @@ public class SecretInbox extends JFrame implements ActionListener{
 	 * Pulsante con il quale si imposta la porta di ascolto
 	 */
 	private JButton button_impostaPorta;
+	/**
+	 * Numero di porta di ascolto
+	 */
+	private int porta;
 	
 	
 	/**
@@ -105,10 +110,9 @@ public class SecretInbox extends JFrame implements ActionListener{
 	private JButton button_BruteForce;
 	
 	/**
-	 * Socket per la ricezione di messaggi
+	 * Lavoratore in background
 	 */
-	private DatagramSocket socketAscolto;
-	
+	private BackgroundWorker worker;
 	/**
 	 * Costruttore default
 	 */
@@ -193,7 +197,6 @@ public class SecretInbox extends JFrame implements ActionListener{
 		panel_Msg.setBounds(195, 10, 550, 460);
 		messaggi = new LinkedList<JButton>();
 		msg = null;
-		
 		add(panel_Porta);
 		add(panel_Decifra);
 		add(panel_Msg);
@@ -209,8 +212,14 @@ public class SecretInbox extends JFrame implements ActionListener{
 			int porta;
 			try {
 				porta = Integer.parseInt(textField_portaAscolto.getText());
+				if(porta!=this.porta) {
+					this.porta = porta;
+					if(worker!=null) worker.die();
+					worker = new BackgroundWorker(porta, messaggi, panel_Interno, this);
+					worker.start();
+				}
 			} catch(Exception exp) {
-				JOptionPane.showMessageDialog(null, "La porta deve essere un numero", "Errore", 0);
+				JOptionPane.showMessageDialog(null, "La porta deve essere un numero", "Errore", JOptionPane.ERROR_MESSAGE);
 			}
 		}
 		else if(e.getSource().equals(rbutton_cesare)) {
@@ -227,10 +236,47 @@ public class SecretInbox extends JFrame implements ActionListener{
 			
 		}
 		else if(e.getSource().equals(button_decifra)) {
-			
+			if(rbutton_cesare.isSelected()) {
+				try {
+					if(textField_chiaveCesare.getText().isEmpty())
+						JOptionPane.showMessageDialog(null, "Inserire la chiave (numero)", "Attenzione", JOptionPane.WARNING_MESSAGE);
+					else {
+						int chiave = Integer.parseInt(textField_chiaveCesare.getText());
+						if(msg == null) JOptionPane.showMessageDialog(null, "Selezionare un messaggio da decifrare", "Attenzione", JOptionPane.WARNING_MESSAGE);
+						else {
+							byte[] risultato = Decifratore.decifra(msg, chiave);
+							JOptionPane.showMessageDialog(null, new String(risultato), "Risultato decifratura", JOptionPane.INFORMATION_MESSAGE);
+						}
+					}
+				}catch(Exception exp) {
+					JOptionPane.showMessageDialog(null, "La chiave deve essere un numero", "Attenzione", JOptionPane.WARNING_MESSAGE);
+				}
+			}else if(rbutton_vigenere.isSelected()) {
+				if(textField_chiaveVigenere.getText().isEmpty()) {
+					JOptionPane.showMessageDialog(null, "Inserire la chiave (sequenza di 5 caratteri)", "Attenzione", JOptionPane.WARNING_MESSAGE);
+				}else {
+					String chiave = textField_chiaveVigenere.getText();
+					if(msg == null) JOptionPane.showMessageDialog(null, "Selezionare un messaggio da decifrare", "Attenzione", JOptionPane.WARNING_MESSAGE);
+					else {
+						byte[] risultato = Decifratore.decifra(msg, chiave);
+						JOptionPane.showMessageDialog(null, new String(risultato), "Risultato decifratura", JOptionPane.INFORMATION_MESSAGE);
+					}
+				}
+			}else {
+				JOptionPane.showMessageDialog(null, "Specificare l'algoritmo di decifratura", "Attenzione", JOptionPane.WARNING_MESSAGE);
+			}
 		}
 		else if(e.getSource().equals(button_BruteForce)) {
 			
+		}
+		else {
+			for (JButton p : messaggi) {
+				if(p.equals(e.getSource())) {
+					msg = p.getText().getBytes();
+					p.setBackground(Color.cyan);
+
+				}
+			}
 		}
 	}
 }
