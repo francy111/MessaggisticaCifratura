@@ -88,7 +88,7 @@
 	/**
 	 * Zona di testo in cui inserire la chiave di cifratura
 	 */
-	private JTextField chiave;
+	private JTextArea chiaveC, chiaveV;
 	
 	/**
 	 * Pulsante utilizzato per rimuovere una chat
@@ -142,6 +142,8 @@
 		infoChat.setBounds(270,0,660,56);
 		infoChat.setText("");
 		infoChat.setVisible(false);
+		infoChat.setEditable(false);
+		infoChat.setForeground(Color.black);
 		
 		listaChat = new JPanel();
 		listaChat.setBorder(LineBorder.createBlackLineBorder());
@@ -187,9 +189,44 @@
 		inviaMessaggio.setVisible(false);
 		inviaMessaggio.addActionListener(this);
 		
-		chiave = new JTextField();
-		chiave.setPreferredSize(new Dimension(75, 25));
-		chiave.setEnabled(false);
+		chiaveC = new JTextArea(
+			new DefaultStyledDocument() {
+				private static final long serialVersionUID = 1L;
+				@Override
+				public void insertString(int offs, String str, AttributeSet a) {
+					try {
+						str = str.replaceAll("[a-z]", "");
+						str = str.replaceAll("[A-Z]", "");
+						super.insertString(offs, str, a);
+					} catch (BadLocationException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		);
+		chiaveC.setPreferredSize(new Dimension(75, 25));
+		chiaveC.setVisible(false);
+		chiaveC.setBorder(LineBorder.createBlackLineBorder());
+		chiaveC.setTransferHandler(null);
+		
+		chiaveV = new JTextArea(
+			new DefaultStyledDocument() {
+				private static final long serialVersionUID = 1L;
+				@Override
+				public void insertString(int offs, String str, AttributeSet a) {
+					if((getLength() + str.length()) <= 5)
+					try {
+						super.insertString(offs, str, a);
+					} catch (BadLocationException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		);
+		chiaveV.setPreferredSize(new Dimension(75, 25));
+		chiaveV.setVisible(false);
+		chiaveV.setBorder(LineBorder.createBlackLineBorder());
+		chiaveV.setTransferHandler(null);
 		
 		cesare = new JRadioButton("Cesare");
 		vigenere = new JRadioButton("Vigenerè");
@@ -202,7 +239,8 @@
 		tipoCrittografia = new JPanel();
 		tipoCrittografia.add(cesare);
 		tipoCrittografia.add(vigenere);
-		tipoCrittografia.add(chiave);
+		tipoCrittografia.add(chiaveC);
+		tipoCrittografia.add(chiaveV);
 		tipoCrittografia.setBounds(270, 407, 660, 50);
 		tipoCrittografia.setBorder(LineBorder.createBlackLineBorder());
 		tipoCrittografia.setBackground(Color.white);
@@ -341,14 +379,18 @@
 		
 		// Si imposta come tipo di cifratura la cifratura di Cesare, si attiva il campo per inserire la chiave
 		else if(e.getSource().equals(cesare)) {
-			chiave.setEnabled(true);
-			chiave.setText("");
+			chiaveC.setVisible(true);
+			chiaveC.setText("");
+			chiaveV.setVisible(false);
+			chiaveV.setText("");
 		}
 		
 		// Si imposta come tipo di cifratura la cifratura di vigenerè, si attiva il campo per inserire la chiave
 		else if(e.getSource().equals(vigenere)) {
-			chiave.setEnabled(true);
-			chiave.setText("");
+			chiaveC.setVisible(false);
+			chiaveC.setText("");
+			chiaveV.setVisible(true);
+			chiaveV.setText("");
 		}
 		
 		// Si crea un worker che cifra il messaggio e lo invia alla inbox indicata
@@ -357,8 +399,8 @@
 			else {
 				if(cesare.isSelected()) {
 					try {
-						if(chiave.getText().isEmpty()) throw new Exception();
-						int key = Integer.valueOf(chiave.getText());
+						if(chiaveC.getText().isEmpty()) throw new Exception();
+						int key = Integer.valueOf(chiaveC.getText());
 						
 						BackgroundWorker worker = new BackgroundWorker(inboxAttuale);
 						worker.setUp(code, zonaMessaggio.getText(), ""+key, 0);
@@ -371,11 +413,11 @@
 					}
 				}else if(vigenere.isSelected()) {
 					try {
-						if(chiave.getText().isEmpty()) throw new Exception();
-						if(chiave.getText().length()!=5)
+						if(chiaveV.getText().isEmpty()) throw new Exception();
+						if(chiaveV.getText().length()!=5)
 							JOptionPane.showMessageDialog(null, "La chiave deve essere una parola di 5 caratteri", "Errore", JOptionPane.ERROR_MESSAGE);
 						else {
-							String key = chiave.getText();
+							String key = chiaveV.getText();
 							BackgroundWorker worker = new BackgroundWorker(inboxAttuale);
 							worker.setUp(code, zonaMessaggio.getText(), key, 1);
 							worker.exec();

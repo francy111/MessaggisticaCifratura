@@ -65,6 +65,8 @@ public class Login extends JFrame implements ActionListener{
 					public void insertString(int offs, String str, AttributeSet a) {
 						if((getLength() + str.length()) <= 4)
 							try {
+								str = str.replaceAll("[a-z]", "");
+								str = str.replaceAll("[A-Z]", "");
 								super.insertString(offs, str, a);
 							} catch (BadLocationException e) {
 								e.printStackTrace();
@@ -72,6 +74,7 @@ public class Login extends JFrame implements ActionListener{
 					}
 				}
 		);
+		codiceAgente.setTransferHandler(null);
 		codiceAgente.setPreferredSize(new Dimension(75, 22));
 		codiceAgente.setBorder(LineBorder.createBlackLineBorder());
 		

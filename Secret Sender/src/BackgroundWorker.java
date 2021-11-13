@@ -1,7 +1,9 @@
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.nio.charset.StandardCharsets;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Base64;
 
 /**
  * Classe background worker
@@ -132,7 +134,7 @@ public class BackgroundWorker{
 		byte[] key = chiave.getBytes();
 		
 		for(int i = 0; i < msg.length; i++) {
-			cifrato[i] = (byte)(msg[i] + key[i%key.length]);
+			cifrato[i] = (byte)((byte)msg[i] + (byte)key[i%key.length]);
 		}
 		
 		return  cifrato;

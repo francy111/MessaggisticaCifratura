@@ -42,7 +42,7 @@ public class SecretInbox extends JFrame implements ActionListener{
 	/**
 	 * Campo di testo per inserire la porta di ascolto
 	 */
-	private JTextField textField_portaAscolto;
+	private JTextArea textField_portaAscolto;
 	/**
 	 * Pulsante con il quale si imposta la porta di ascolto
 	 */
@@ -98,8 +98,8 @@ public class SecretInbox extends JFrame implements ActionListener{
 	/**
 	 * Campo di testo per inserire la chiave di decifratura
 	 */
-	private JTextField textField_chiaveCesare;
-	private JTextPane textField_chiaveVigenere;
+	private JTextArea textField_chiaveCesare;
+	private JTextArea textField_chiaveVigenere;
 	/**
 	 * Pulsante per eseguire la decifratura
 	 */
@@ -126,8 +126,26 @@ public class SecretInbox extends JFrame implements ActionListener{
 		panel_Porta.setBorder(LineBorder.createBlackLineBorder());
 		panel_Porta.setBounds(10, 10, 175, 100);
 		label_portaAscolto = new JLabel("Porta: ");
-		textField_portaAscolto = new JTextField();
+		textField_portaAscolto = new JTextArea(
+			new DefaultStyledDocument() {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void insertString(int offs, String str, AttributeSet a) {
+					if((getLength() + str.length()) <= 5)
+						try {
+							str = str.replaceAll("[a-z]", "");
+							str = str.replaceAll("[A-Z]", "");
+							super.insertString(offs, str, a);
+						} catch (BadLocationException e) {
+							e.printStackTrace();
+						}
+				}
+			}
+		);
+		textField_portaAscolto.setTransferHandler(null);
 		textField_portaAscolto.setPreferredSize(new Dimension(75, 25));
+		textField_portaAscolto.setBorder(LineBorder.createBlackLineBorder());
 		button_impostaPorta = new JButton("Utilizza porta");
 		button_impostaPorta.addActionListener(this);
 		
@@ -148,9 +166,26 @@ public class SecretInbox extends JFrame implements ActionListener{
 		rgroup_algoritmo.add(rbutton_cesare);
 		rgroup_algoritmo.add(rbutton_vigenere);
 		label_chiave = new JLabel("Chiave di decifratura");
-		textField_chiaveCesare = new JTextField();
+		textField_chiaveCesare = new JTextArea(
+			new DefaultStyledDocument() {
+				private static final long serialVersionUID = 1L;
+				@Override
+				public void insertString(int offs, String str, AttributeSet a) {
+					try {
+						str = str.replaceAll("[a-z]", "");
+						str = str.replaceAll("[A-Z]", "");
+						super.insertString(offs, str, a);
+					} catch (BadLocationException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		);
 		textField_chiaveCesare.setPreferredSize(new Dimension(75, 25));
-		textField_chiaveVigenere = new JTextPane(
+		textField_chiaveCesare.setBorder(LineBorder.createBlackLineBorder());
+		textField_chiaveCesare.setTransferHandler(null);
+		
+		textField_chiaveVigenere = new JTextArea(
 				new DefaultStyledDocument() {
 					private static final long serialVersionUID = 1L;
 
@@ -165,6 +200,8 @@ public class SecretInbox extends JFrame implements ActionListener{
 					}
 				}
 		);
+		textField_chiaveVigenere.setBorder(LineBorder.createBlackLineBorder());
+		textField_chiaveVigenere.setTransferHandler(null);
 		textField_chiaveVigenere.setPreferredSize(new Dimension(75, 25));
 		textField_chiaveVigenere.setVisible(false);
 		button_decifra = new JButton("Decifra messaggio");
@@ -244,7 +281,7 @@ public class SecretInbox extends JFrame implements ActionListener{
 						int chiave = Integer.parseInt(textField_chiaveCesare.getText());
 						if(msg == null) JOptionPane.showMessageDialog(null, "Selezionare un messaggio da decifrare", "Attenzione", JOptionPane.WARNING_MESSAGE);
 						else {
-							byte[] risultato = Decifratore.decifra(msg, chiave);
+							byte[] risultato = Decifratore.decifraCesare(msg, chiave);
 							JOptionPane.showMessageDialog(null, new String(risultato), "Risultato decifratura", JOptionPane.INFORMATION_MESSAGE);
 						}
 					}
@@ -258,7 +295,7 @@ public class SecretInbox extends JFrame implements ActionListener{
 					String chiave = textField_chiaveVigenere.getText();
 					if(msg == null) JOptionPane.showMessageDialog(null, "Selezionare un messaggio da decifrare", "Attenzione", JOptionPane.WARNING_MESSAGE);
 					else {
-						byte[] risultato = Decifratore.decifra(msg, chiave);
+						byte[] risultato = Decifratore.decifraVigenere(msg, chiave);
 						JOptionPane.showMessageDialog(null, new String(risultato), "Risultato decifratura", JOptionPane.INFORMATION_MESSAGE);
 					}
 				}
