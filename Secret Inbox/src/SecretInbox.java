@@ -1,12 +1,9 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.DatagramSocket;
-import java.util.Base64;
 import java.util.LinkedList;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -47,6 +44,10 @@ public class SecretInbox extends JFrame implements ActionListener{
 	 * Pulsante con il quale si imposta la porta di ascolto
 	 */
 	private JButton button_impostaPorta;
+	/**
+	 * Pulsante con il quale si termina l'applicazione
+	 */
+	private JButton button_exit;
 	/**
 	 * Numero di porta di ascolto
 	 */
@@ -130,10 +131,13 @@ public class SecretInbox extends JFrame implements ActionListener{
 		textField_portaAscolto.setPreferredSize(new Dimension(75, 25));
 		button_impostaPorta = new JButton("Utilizza porta");
 		button_impostaPorta.addActionListener(this);
+		button_exit = new JButton("Exit");
+		button_exit.addActionListener(this);
 		
 		panel_Porta.add(label_portaAscolto);
 		panel_Porta.add(textField_portaAscolto);
 		panel_Porta.add(button_impostaPorta);
+		panel_Porta.add(button_exit);
 		
 		
 		panel_Decifra = new JPanel();
@@ -142,7 +146,7 @@ public class SecretInbox extends JFrame implements ActionListener{
 		label_decifratura = new JLabel("Algoritmo di decifratura");
 		rbutton_cesare = new JRadioButton("Cesare");
 		rbutton_cesare.addActionListener(this);
-		rbutton_vigenere = new JRadioButton("Vigenère");
+		rbutton_vigenere = new JRadioButton("Vigenere");
 		rbutton_vigenere.addActionListener(this);
 		rgroup_algoritmo = new ButtonGroup();
 		rgroup_algoritmo.add(rbutton_cesare);
@@ -269,12 +273,13 @@ public class SecretInbox extends JFrame implements ActionListener{
 		else if(e.getSource().equals(button_BruteForce)) {
 			
 		}
+		else if(e.getSource().equals(button_exit)) {
+			if(worker!= null) worker.die();
+		}
 		else {
 			for (JButton p : messaggi) {
 				if(p.equals(e.getSource())) {
 					msg = p.getText().getBytes();
-					p.setBackground(Color.cyan);
-
 				}
 			}
 		}

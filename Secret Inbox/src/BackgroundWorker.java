@@ -1,9 +1,11 @@
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.util.Base64;
 import java.util.LinkedList;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.File;
 public class BackgroundWorker extends Thread{
 	private int porta;
 	private DatagramSocket socket;
@@ -45,6 +47,12 @@ public class BackgroundWorker extends Thread{
 				panel.revalidate();
 				panel.repaint();
 				i++;
+				
+				File file = new File("log"+porta+".txt");
+				if(!file.exists()) file.createNewFile();
+				BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+				bw.append(ms);
+				bw.close();
 			}
 			socket.close();
 		}catch(Exception e) {}

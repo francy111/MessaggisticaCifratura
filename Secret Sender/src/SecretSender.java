@@ -192,7 +192,7 @@
 		chiave.setEnabled(false);
 		
 		cesare = new JRadioButton("Cesare");
-		vigenere = new JRadioButton("Vigenerè");
+		vigenere = new JRadioButton("Vigenere'");
 		cesare.addActionListener(this);
 		vigenere.addActionListener(this);
 		ButtonGroup r = new ButtonGroup();
@@ -311,7 +311,7 @@
 				if(!contiene(inboxes, p)) { 
 					inboxes.add(p);
 				}
-				else JOptionPane.showMessageDialog(null, "La inbox � gi� presente", "Errore", 0);
+				else JOptionPane.showMessageDialog(null, "La inbox e' gia' presente", "Errore", 0);
 				aggiornaChat();
 				impostazioniG.dispose();
 			}catch(Exception exp) {
