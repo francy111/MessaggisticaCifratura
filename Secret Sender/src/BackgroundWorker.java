@@ -2,8 +2,11 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.nio.charset.StandardCharsets;
 import java.net.InetAddress;
+<<<<<<< HEAD
 import java.net.UnknownHostException;
 import java.util.Base64;
+=======
+>>>>>>> a0ea2d3aed0052366cb6060980e9c3ac6a0e5301
 
 /**
  * Classe background worker

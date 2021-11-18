@@ -365,7 +365,7 @@
 				if(!contiene(inboxes, p)) { 
 					inboxes.add(p);
 				}
-				else JOptionPane.showMessageDialog(null, "La inbox � gi� presente", "Errore", 0);
+				else JOptionPane.showMessageDialog(null, "La inbox e' gia' presente", "Errore", 0);
 				aggiornaChat();
 				impostazioniG.dispose();
 			}catch(Exception exp) {
