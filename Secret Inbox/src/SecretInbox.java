@@ -1,12 +1,9 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.DatagramSocket;
-import java.util.Base64;
 import java.util.LinkedList;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -64,7 +61,7 @@ public class SecretInbox extends JFrame implements ActionListener{
 	/**
 	 * Lista contenente ogni messaggio ricevuto
 	 */
-	private LinkedList<JButton> messaggi;
+	private LinkedList<Pair<JButton, byte[]> > messaggi;
 	/**
 	 * Messaggio selezionato per la decifratura
 	 */
@@ -98,8 +95,7 @@ public class SecretInbox extends JFrame implements ActionListener{
 	/**
 	 * Campo di testo per inserire la chiave di decifratura
 	 */
-	private JTextArea textField_chiaveCesare;
-	private JTextArea textField_chiaveVigenere;
+	private JTextArea textField_chiaveCesare, textField_chiaveVigenere;
 	/**
 	 * Pulsante per eseguire la decifratura
 	 */
@@ -108,6 +104,14 @@ public class SecretInbox extends JFrame implements ActionListener{
 	 * Pulsante per eseguire la Brute Force
 	 */
 	private JButton button_BruteForce;
+	/**
+	 * Finestra dove si visualizzano i risultati della decifrazione
+	 */
+	private PanelDecifrazione panel_dec;
+	/**
+	 * Pulsante con il quale si chiude l'applicazione
+	 */
+	private JButton esci;
 	
 	/**
 	 * Lavoratore in background
@@ -184,6 +188,7 @@ public class SecretInbox extends JFrame implements ActionListener{
 		textField_chiaveCesare.setPreferredSize(new Dimension(75, 25));
 		textField_chiaveCesare.setBorder(LineBorder.createBlackLineBorder());
 		textField_chiaveCesare.setTransferHandler(null);
+		textField_chiaveCesare.setVisible(false);
 		
 		textField_chiaveVigenere = new JTextArea(
 				new DefaultStyledDocument() {
@@ -209,11 +214,16 @@ public class SecretInbox extends JFrame implements ActionListener{
 		button_BruteForce = new JButton("!");
 		button_BruteForce.setForeground(Color.red);
 		button_BruteForce.addActionListener(this);
+		esci = new JButton("Esci");
+		esci.addActionListener(this);
 		
-		JLabel tmp1 = new JLabel(), tmp2 = new JLabel(), tmp3 = new JLabel();
+		JLabel tmp1 = new JLabel(), tmp2 = new JLabel(), tmp3 = new JLabel(), tmp4 = new JLabel(), tmp5 = new JLabel(), tmp6 = new JLabel();
 		tmp1.setBorder(new CompoundBorder(tmp1.getBorder(), new EmptyBorder(10,80,10,80)));
 		tmp2.setBorder(new CompoundBorder(tmp2.getBorder(), new EmptyBorder(10,120,10,120)));
 		tmp3.setBorder(new CompoundBorder(tmp3.getBorder(), new EmptyBorder(10,120,10,120)));
+		tmp4.setBorder(new CompoundBorder(tmp4.getBorder(), new EmptyBorder(10,120,10,120)));
+		tmp5.setBorder(new CompoundBorder(tmp5.getBorder(), new EmptyBorder(10,120,10,120)));
+		tmp6.setBorder(new CompoundBorder(tmp6.getBorder(), new EmptyBorder(10,120,10,120)));
 		panel_Decifra.add(new JLabel("Decifratura messaggio"));
 		panel_Decifra.add(tmp1);
 		panel_Decifra.add(label_decifratura);
@@ -226,19 +236,23 @@ public class SecretInbox extends JFrame implements ActionListener{
 		panel_Decifra.add(button_decifra);
 		panel_Decifra.add(tmp3);
 		panel_Decifra.add(button_BruteForce);
+		panel_Decifra.add(tmp4);
+		panel_Decifra.add(tmp5);
+		panel_Decifra.add(esci);
+		panel_dec = new PanelDecifrazione();
 		
 		panel_Interno = new JPanel();
 		panel_Interno.setLayout(new BoxLayout(panel_Interno, BoxLayout.Y_AXIS));
 		panel_Msg = new JScrollPane(panel_Interno);
 		panel_Msg.setBorder(LineBorder.createBlackLineBorder());
 		panel_Msg.setBounds(195, 10, 550, 460);
-		messaggi = new LinkedList<JButton>();
+		messaggi = new LinkedList<Pair<JButton, byte[]> >();
 		msg = null;
 		add(panel_Porta);
 		add(panel_Decifra);
 		add(panel_Msg);
 		setVisible(true);
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 	}
 	
 	public static void main(String[] args) { new SecretInbox(); }
@@ -251,7 +265,7 @@ public class SecretInbox extends JFrame implements ActionListener{
 				porta = Integer.parseInt(textField_portaAscolto.getText());
 				if(porta!=this.porta) {
 					this.porta = porta;
-					if(worker!=null) worker.die();
+					if(worker!=null) worker.cambiaPorta(this.porta);
 					worker = new BackgroundWorker(porta, messaggi, panel_Interno, this);
 					worker.start();
 				}
@@ -282,7 +296,8 @@ public class SecretInbox extends JFrame implements ActionListener{
 						if(msg == null) JOptionPane.showMessageDialog(null, "Selezionare un messaggio da decifrare", "Attenzione", JOptionPane.WARNING_MESSAGE);
 						else {
 							byte[] risultato = Decifratore.decifraCesare(msg, chiave);
-							JOptionPane.showMessageDialog(null, new String(risultato), "Risultato decifratura", JOptionPane.INFORMATION_MESSAGE);
+							panel_dec.setDecifrato(risultato);
+							panel_dec.setVisible(true);
 						}
 					}
 				}catch(Exception exp) {
@@ -296,22 +311,39 @@ public class SecretInbox extends JFrame implements ActionListener{
 					if(msg == null) JOptionPane.showMessageDialog(null, "Selezionare un messaggio da decifrare", "Attenzione", JOptionPane.WARNING_MESSAGE);
 					else {
 						byte[] risultato = Decifratore.decifraVigenere(msg, chiave);
-						JOptionPane.showMessageDialog(null, new String(risultato), "Risultato decifratura", JOptionPane.INFORMATION_MESSAGE);
+						panel_dec.setDecifrato(risultato);
+						panel_dec.setVisible(true);
 					}
 				}
 			}else {
 				JOptionPane.showMessageDialog(null, "Specificare l'algoritmo di decifratura", "Attenzione", JOptionPane.WARNING_MESSAGE);
 			}
 		}
-		else if(e.getSource().equals(button_BruteForce)) {
+		else if(e.getSource().equals(esci)) {
+			try {
+				if(worker != null) worker.die();
+				worker = null;
+				for(int i=0;i<messaggi.size();i++)
+					messaggi.removeLast();
+				messaggi = null;
+				panel_dec.dispose();
+				panel_dec = null;
+			}catch(Exception coc) {}
 			
+			dispose();
+		}
+		else if(e.getSource().equals(button_BruteForce)) {
+			panel_Msg.getComponent(0).setVisible(false);
 		}
 		else {
-			for (JButton p : messaggi) {
-				if(p.equals(e.getSource())) {
-					msg = p.getText().getBytes();
-					p.setBackground(Color.cyan);
-
+			for (int i = 0; i < messaggi.size(); i++) {
+				if(messaggi.get(i).getPrimo().equals(e.getSource())) {
+					msg = messaggi.get(i).getSecondo();
+					messaggi.get(i).getPrimo().setBackground(Color.cyan);
+					panel_dec.setVisible(true);
+					panel_dec.setCifrato(messaggi.get(i).getSecondo());
+					panel_dec.setDecifrato(new byte[]{' '});
+					break; // Se troviamo il pulsante che ha generato l'evento non serve controllare quelli dopo
 				}
 			}
 		}

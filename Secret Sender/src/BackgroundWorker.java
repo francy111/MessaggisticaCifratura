@@ -21,7 +21,7 @@ public class BackgroundWorker{
 	/**
 	 * Messaggio da inviare (e cifrare)
 	 */
-	private byte[] o_message;
+	private char[] o_message;
 	
 	/**
 	 * Chiave di cifratura
@@ -65,7 +65,7 @@ public class BackgroundWorker{
 	 */
 	public void setUp(int code, String msg, String chiave, int tipoCrittografia) {
 		this.code = code;
-		this.o_message = (this.code + ": " + msg).getBytes();
+		this.o_message = (this.code + ": " + msg).toCharArray();
 		this.chiave = chiave;
 		this.tipoCrittografia = tipoCrittografia;
 	}
@@ -78,10 +78,12 @@ public class BackgroundWorker{
 	 * risposta
 	 */
 	public void exec() {
-		byte[] msg = cifraMessaggio(o_message, chiave);
-		
+		char[] msg = cifraMessaggio(o_message, chiave);
+		byte [] msgByte = new byte[msg.length];
+		for(int i = 0; i < msg.length; i++) msgByte[i] = (byte)(msg[i]);
+
 		try {
-			DatagramPacket p = new DatagramPacket(msg, msg.length, InetAddress.getByName(inbox.getIP()),inbox.getPorta());
+			DatagramPacket p = new DatagramPacket(msgByte, msg.length, InetAddress.getByName(inbox.getIP()),inbox.getPorta());
 			socket.send(p);
 			
 			socket.close();
@@ -96,8 +98,8 @@ public class BackgroundWorker{
 	 * @param chiave Chiave di cifratura
 	 * @return Messaggio cifrato con la chiave indicata
 	 */
-	private byte[] cifraMessaggio(byte[] msg, String chiave) {
-		byte[] msgCriptato;
+	private char[] cifraMessaggio(char[] msg, String chiave) {
+		char[] msgCriptato;
 		if(tipoCrittografia == 0) {
 			msgCriptato = cifraturaCesare(msg, Integer.valueOf(chiave));
 		}else if(tipoCrittografia == 1){
@@ -114,12 +116,12 @@ public class BackgroundWorker{
 	 * @param chiave Chiave di cifratura (numero)
 	 * @return Messaggio cifrato con il cifrario di Cesare
 	 */
-	private byte[] cifraturaCesare(byte[] msg, int chiave) {
-		byte[] cifrato = new byte[msg.length];
-		byte key = (byte)(chiave%255);
+	private char[] cifraturaCesare(char[] msg, int chiave) {
+		char[] cifrato = new char[msg.length];
+		char key = (char)(chiave%255);
 
 		for(int i = 0; i < msg.length; i++)
-			cifrato[i] = (byte)(msg[i] + key);
+			cifrato[i] = (char)(msg[i] + key);
 		return cifrato;
 	}
 	
@@ -129,13 +131,11 @@ public class BackgroundWorker{
 	 * @param chiave Chiave di cifratura (messaggio)
 	 * @return Messaggio cifrato con il cifrario di Vigenerè
 	 */
-	private byte[] cifraturaVigenere(byte[] msg, String chiave) {
-		byte[] cifrato = new byte[msg.length];
-		byte[] key = chiave.getBytes();
-		
-		for(int i = 0; i < msg.length; i++) {
-			cifrato[i] = (byte)((byte)msg[i] + (byte)key[i%key.length]);
-		}
+	private char[] cifraturaVigenere(char[] msg, String chiave) {
+		char[] cifrato = new char[msg.length];
+		char[] key = chiave.toCharArray();
+		for(int i = 0; i < msg.length; i++)
+			cifrato[i] = (char)(msg[i] + key[i%key.length]);
 		
 		return  cifrato;
 	}

@@ -1,5 +1,3 @@
-import java.nio.charset.StandardCharsets;
-
 public class Decifratore {
 	private Decifratore() {}
 
@@ -14,11 +12,15 @@ public class Decifratore {
 	public static byte[] decifraVigenere(byte[] msg, String chiave) {
 		byte[] res = new byte[msg.length];
 		byte[] key = chiave.getBytes();
-		System.out.println(new String(key));
 		for(int i = 0; i < msg.length; i++) {
 			res[i] = (byte)((byte)msg[i] - (byte)key[i%key.length]);
 		}
 		
 		return res;
+	}
+	public static byte[][] decifraBruteForce(byte[] msg){
+		byte[][] forseRes = null;
+		
+		return forseRes;
 	}
 }

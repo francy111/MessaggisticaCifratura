@@ -11,7 +11,7 @@
 	 * Classe secret sender
 	 * @author francy111
 	 * @version 1.0
-	 * Conterr√† le funzionalit√† del secret sender
+	 * Contiene† le funzionalita'† del secret sender
 	 * 
 	 * Inserire codice agente
 	 * Inserire IP-Porta secret inbox
@@ -20,7 +20,7 @@
 	 */
 	public class SecretSender extends JFrame implements ActionListener {
 		
-		/**
+	/**
 	 * ID di versione seriale
 	 */
 	private static final long serialVersionUID = 1L;
@@ -134,10 +134,13 @@
 		 */
 		this.code = code;
 		inboxes = new ArrayList<>();
+		
+		// Finestra delle impostazioni
 		impostazioni = new JButton("Settings");
 		impostazioni.setBounds(0,0,273,55);
 		impostazioni.addActionListener(this);
 		
+		// Riporta l' IP e la porta della inbox in alto a centro/destra della finestra
 		infoChat = new JTextField();
 		infoChat.setBounds(270,0,660,56);
 		infoChat.setText("");
@@ -145,6 +148,7 @@
 		infoChat.setEditable(false);
 		infoChat.setForeground(Color.black);
 		
+		// Pannello con la lista di tutte le inbox
 		listaChat = new JPanel();
 		listaChat.setBorder(LineBorder.createBlackLineBorder());
 		listaChat.setBounds(0,55,271,456);
@@ -154,6 +158,7 @@
 		scrollPane.setPreferredSize(new Dimension(600,600));
 		scrollPane.setBounds(0,55,271,456);
 		
+		// Area di testo in cui vengono riportati tutti i messaggi inviati ad una inbox
 		cronologia = new JTextArea();
 		cronologia.setBorder(LineBorder.createBlackLineBorder());
 		cronologia.setBounds(270,55,660,350);
@@ -161,6 +166,7 @@
 		cronologia.setEnabled(false);
 		cronologia.setLineWrap(true);
 		
+		// Area di testo in cui inserire il messaggio da inviare alla inbox
 		zonaMessaggio = new JTextArea(
 				new DefaultStyledDocument() {
 					private static final long serialVersionUID = 1L;
@@ -179,16 +185,17 @@
 		zonaMessaggio.setText("Scrivi un messaggio...");
 		zonaMessaggio.setLineWrap(true);
 		zonaMessaggio.setVisible(false);
-		
 		JScrollPane p = new JScrollPane(zonaMessaggio);
 		p.setBounds(272,458,598,50);
 		p.setBorder(LineBorder.createBlackLineBorder());
 		
-		inviaMessaggio = new JButton("Send");
+		// Pulsante per inviare il messaggio alla inbox
+		inviaMessaggio = new JButton(">");
 		inviaMessaggio.setBounds(870,455, 60, 55);
 		inviaMessaggio.setVisible(false);
 		inviaMessaggio.addActionListener(this);
 		
+		// Area di testo per inserire la chiave per l'algoritmo di cesare
 		chiaveC = new JTextArea(
 			new DefaultStyledDocument() {
 				private static final long serialVersionUID = 1L;
@@ -208,7 +215,8 @@
 		chiaveC.setVisible(false);
 		chiaveC.setBorder(LineBorder.createBlackLineBorder());
 		chiaveC.setTransferHandler(null);
-		
+
+		// Area di testo per inserire la chiave per l'algoritmo di vigenere
 		chiaveV = new JTextArea(
 			new DefaultStyledDocument() {
 				private static final long serialVersionUID = 1L;
@@ -228,14 +236,16 @@
 		chiaveV.setBorder(LineBorder.createBlackLineBorder());
 		chiaveV.setTransferHandler(null);
 		
+		// Pulsante radio per selezionare l'algoritmo di cifratura
 		cesare = new JRadioButton("Cesare");
-		vigenere = new JRadioButton("Vigener√®");
+		vigenere = new JRadioButton("Vigenere'");
 		cesare.addActionListener(this);
 		vigenere.addActionListener(this);
 		ButtonGroup r = new ButtonGroup();
 		r.add(cesare);
 		r.add(vigenere);
 		
+		// Pannello che contiene i due pulsanti radio per selezioanre l'algoritmo di cifratura
 		tipoCrittografia = new JPanel();
 		tipoCrittografia.add(cesare);
 		tipoCrittografia.add(vigenere);
@@ -246,18 +256,24 @@
 		tipoCrittografia.setBackground(Color.white);
 		tipoCrittografia.setVisible(false);
 		
+		// Pulsante per inserire IP e porta di una inbox
 		creaChat = new JButton("Nuova chat");
 		creaChat.addActionListener(this);
+		
+		// Pulsante per rimuovere la inbox attuale
 		rimuoviChat = new JButton("Rimuovi chat");
 		rimuoviChat.addActionListener(this);
 		rimuoviChat.setVisible(false);
 		
+		// Pulsante per chiudere l'applicazione
 		chiudiApplicazione = new JButton("Exit");
 		chiudiApplicazione.addActionListener(this);
 		
+		// Pulsante per eseguire il logout dall'applicazione
 		logout = new JButton("Esegui logout");
 		logout.addActionListener(this);
 		
+		// Pulsante per aprire la finestra delle impostazioni
 		impostazioniG = new JFrame("Impostazioni");
 		impostazioniG.setLayout(new BorderLayout());
 		JPanel pp = new JPanel();
