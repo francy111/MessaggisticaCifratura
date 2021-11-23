@@ -15,7 +15,7 @@ class PanelDecifrazione extends JFrame{
 		super("Decifrazione");
 		setLayout(null);
 		setBounds(100, 100, 700, 400);
-		
+		setResizable(false);
 		JLabel l1, l2;
 		l1 = new JLabel("Messaggio cifrato");
 		l1.setBounds(125, 5, 200, 25);

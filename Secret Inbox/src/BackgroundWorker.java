@@ -1,5 +1,7 @@
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketAddress;
 import java.util.LinkedList;
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -34,8 +36,9 @@ public class BackgroundWorker extends Thread{
 			socket = new DatagramSocket(porta);
 			byte[] msg = new byte[512];
 			DatagramPacket p = new DatagramPacket(msg, 512);
-			String ms;
+			DatagramPacket risposta;
 			JButton tmp;
+			String ipSender;
 			byte[] messaggio;
 			BufferedWriter bw;
 			File f;
@@ -43,13 +46,22 @@ public class BackgroundWorker extends Thread{
 			while(vivo) {
 				try {
 					for(int k = 0; k < msg.length; k++) msg[k] = 0;
-					p.setData(new byte[512]);
+					p.setData(new byte[600]);
 					socket.receive(p);
-	
+					ipSender = p.getSocketAddress().toString();
+					ipSender = ipSender.substring(1, ipSender.indexOf(':'));
+					risposta = new DatagramPacket(
+							new byte[] {'o','k'},
+							2, 
+							InetAddress.getByName(ipSender),
+							p.getPort()
+					);
+					socket.send(risposta);
+					
+					
 					int k;
 					for(k = 0; i < p.getData().length;k++)
 						if(p.getData()[k]==0) break;
-					ms = new String(p.getData(), 0, k);
 					messaggio = new byte[k];
 					for(int aa = 0; aa < k; aa++)
 						messaggio[aa] = p.getData()[aa];
@@ -71,7 +83,7 @@ public class BackgroundWorker extends Thread{
 					bw.append("\n");
 					bw.close();
 					
-					tmp = new JButton(ms);
+					tmp = new JButton(java.time.LocalDate.now().toString() + " " + java.time.LocalTime.now().toString());
 					tmp.addActionListener(ibx);
 					messaggi.add(new Pair<>(tmp, messaggio));
 					panel.add(messaggi.get(i).getPrimo());

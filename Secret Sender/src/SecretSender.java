@@ -11,7 +11,7 @@
 	 * Classe secret sender
 	 * @author francy111
 	 * @version 1.0
-	 * Contiene  le funzionalita'  del secret sender
+	 * Contieneï¿½ le funzionalita'ï¿½ del secret sender
 	 * 
 	 * Inserire codice agente
 	 * Inserire IP-Porta secret inbox
@@ -124,7 +124,7 @@
 		
 		// Si imposta la dimensioni della finestra
 		super("Secret Sender - Session ID:" + code);
-		setBounds(100, 100, 945, 550);
+		setBounds(100, 100, 948, 550);
 		setLayout(null);
 		setResizable(false);
 		
@@ -137,31 +137,40 @@
 		
 		// Finestra delle impostazioni
 		impostazioni = new JButton("Settings");
-		impostazioni.setBounds(0,0,273,55);
+		impostazioni.setBounds(0,0,268,55);
 		impostazioni.addActionListener(this);
 		
 		// Riporta l' IP e la porta della inbox in alto a centro/destra della finestra
 		infoChat = new JTextField();
 		infoChat.setBounds(270,0,660,56);
 		infoChat.setText("");
+		infoChat.setHorizontalAlignment(JTextField.CENTER);
 		infoChat.setVisible(false);
 		infoChat.setEditable(false);
 		infoChat.setForeground(Color.black);
+		infoChat.setBackground(Color.white);
+		infoChat.setBorder(LineBorder.createBlackLineBorder());
 		
 		// Pannello con la lista di tutte le inbox
 		listaChat = new JPanel();
-		listaChat.setBorder(LineBorder.createBlackLineBorder());
-		listaChat.setBounds(0,55,271,456);
 		listaChat.setLayout(null);
 		listaChat.setBackground(Color.white);
-		JScrollPane scrollPane = new JScrollPane(listaChat,ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		scrollPane.setPreferredSize(new Dimension(600,600));
-		scrollPane.setBounds(0,55,271,456);
+		JScrollPane scrollPane = new JScrollPane(listaChat);
+		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+	    scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollPane.setBounds(0,55,268,454);
+		scrollPane.setBorder(LineBorder.createBlackLineBorder());
+		
+		temp = new JPanel();
+		temp.setBounds(275, 5, 655, 505);
+		temp.setBorder(LineBorder.createBlackLineBorder());
+		temp.setBackground(Color.white);
+		temp.add(new JLabel("Seleziona una Inbox per inviare messaggi"));
 		
 		// Area di testo in cui vengono riportati tutti i messaggi inviati ad una inbox
 		cronologia = new JTextArea();
 		cronologia.setBorder(LineBorder.createBlackLineBorder());
-		cronologia.setBounds(270,55,660,350);
+		cronologia.setBounds(270,57,660,348);
 		cronologia.setVisible(false);
 		cronologia.setEnabled(false);
 		cronologia.setLineWrap(true);
@@ -186,12 +195,12 @@
 		zonaMessaggio.setLineWrap(true);
 		zonaMessaggio.setVisible(false);
 		JScrollPane p = new JScrollPane(zonaMessaggio);
-		p.setBounds(272,458,598,50);
+		p.setBounds(270,458,598,51);
 		p.setBorder(LineBorder.createBlackLineBorder());
 		
 		// Pulsante per inviare il messaggio alla inbox
 		inviaMessaggio = new JButton(">");
-		inviaMessaggio.setBounds(870,455, 60, 55);
+		inviaMessaggio.setBounds(870,458, 60, 51);
 		inviaMessaggio.setVisible(false);
 		inviaMessaggio.addActionListener(this);
 		
@@ -202,8 +211,7 @@
 				@Override
 				public void insertString(int offs, String str, AttributeSet a) {
 					try {
-						str = str.replaceAll("[a-z]", "");
-						str = str.replaceAll("[A-Z]", "");
+						str = str.replaceAll("[^\\d-]", "");
 						super.insertString(offs, str, a);
 					} catch (BadLocationException e) {
 						e.printStackTrace();
@@ -238,8 +246,10 @@
 		
 		// Pulsante radio per selezionare l'algoritmo di cifratura
 		cesare = new JRadioButton("Cesare");
-		vigenere = new JRadioButton("Vigenere'");
+		cesare.setBackground(Color.white);
 		cesare.addActionListener(this);
+		vigenere = new JRadioButton("Vigenere'");
+		vigenere.setBackground(Color.white);
 		vigenere.addActionListener(this);
 		ButtonGroup r = new ButtonGroup();
 		r.add(cesare);
@@ -287,12 +297,6 @@
 		setVisible(false);
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		
-		temp = new JPanel();
-		temp.setBounds(275, 5, 650, 505);
-		temp.setBorder(LineBorder.createBlackLineBorder());
-		temp.setBackground(Color.white);
-		temp.add(new JLabel("Seleziona una Inbox per inviare messaggi"));
-		
 		/* Aggiunta dei componenti alla
 		 * finestra
 		 */
@@ -321,7 +325,7 @@
 		for(Inbox p : inboxes) {
 			tmp = new JButton(p.getIP() + " - " + p.getPorta());
 			tmp.addActionListener(this);
-			tmp.setBounds(1, 1+(inboxes.indexOf(p))*50, 266, 50);
+			tmp.setBounds(1, 1+(inboxes.indexOf(p))*50, 247, 50);
 			listaChat.add(tmp);
 		}
 		
@@ -355,22 +359,26 @@
 		// Si chiedono le informazioni della inbox da aggiungere alla lista
 		else if(e.getSource().equals(creaChat)) {
 			String risposta = JOptionPane.showInputDialog(null, "IP Secret Inbox", "Nuova chat",3);
-			try {
-				Inbox p;
-				p = new Inbox();
-				p.setIP(risposta);
-				int porta = Integer.parseInt((JOptionPane.showInputDialog(null, "Porta Secret Inbox", "Nuova chat",3)));
-				if(porta<50000 || porta>65535) throw new Exception();
-				p.setPorta(porta);
-				if(!contiene(inboxes, p)) { 
-					inboxes.add(p);
+			if(risposta != null)
+				try {
+					int porta = Integer.parseInt((JOptionPane.showInputDialog(null, "Porta Secret Inbox", "Nuova chat",3)));
+					if(porta != JOptionPane.CANCEL_OPTION) {
+						if(porta<50000 || porta>65535) throw new Exception();
+						Inbox p;
+						p = new Inbox();
+						p.setIP(risposta);
+						p.setPorta(porta);
+						if(!contiene(inboxes, p)) { 
+							inboxes.add(p);
+						}
+						else JOptionPane.showMessageDialog(null, "La inbox ï¿½ giï¿½ presente", "Errore", 0);
+						aggiornaChat();
+						impostazioniG.dispose();
+						
+					}
+				}catch(Exception exp) {
+					JOptionPane.showMessageDialog(null, "Inserire correttamente IP e porta", "Errore", 0);
 				}
-				else JOptionPane.showMessageDialog(null, "La inbox ï¿½ giï¿½ presente", "Errore", 0);
-				aggiornaChat();
-				impostazioniG.dispose();
-			}catch(Exception exp) {
-				JOptionPane.showMessageDialog(null, "Inserire correttamente IP e porta", "Errore", 0);
-			}
 		}
 		
 		// Rimuove la chat attuale
@@ -419,7 +427,7 @@
 						int key = Integer.valueOf(chiaveC.getText());
 						
 						BackgroundWorker worker = new BackgroundWorker(inboxAttuale);
-						worker.setUp(code, zonaMessaggio.getText(), ""+key, 0);
+						worker.setUp(code, zonaMessaggio.getText(), ""+key, 0, this);
 						worker.exec();
 		
 						cronologia.setText(cronologia.getText()+zonaMessaggio.getText()+"\n");
@@ -435,7 +443,7 @@
 						else {
 							String key = chiaveV.getText();
 							BackgroundWorker worker = new BackgroundWorker(inboxAttuale);
-							worker.setUp(code, zonaMessaggio.getText(), key, 1);
+							worker.setUp(code, zonaMessaggio.getText(), key, 1, this);
 							worker.exec();
 							
 						cronologia.setText(cronologia.getText()+zonaMessaggio.getText()+"\n");
@@ -448,7 +456,7 @@
 					int res = JOptionPane.showConfirmDialog(null, "Sicuro di inviare il messaggio senza cifratura?", "Attenzione", JOptionPane.WARNING_MESSAGE);
 					if (res==JOptionPane.YES_OPTION) {
 						BackgroundWorker worker = new BackgroundWorker(inboxAttuale);
-						worker.setUp(code, zonaMessaggio.getText(), null, -1);
+						worker.setUp(code, zonaMessaggio.getText(), null, -1, this);
 						worker.exec();
 						cronologia.setText(cronologia.getText()+zonaMessaggio.getText()+"\n");
 						zonaMessaggio.setText("");

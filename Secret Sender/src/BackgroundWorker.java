@@ -1,9 +1,8 @@
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.nio.charset.StandardCharsets;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Base64;
+
+import javax.swing.JOptionPane;
 
 /**
  * Classe background worker
@@ -44,6 +43,11 @@ public class BackgroundWorker{
 	private DatagramSocket socket;
 	
 	/**
+	 * Frame che ha creato il worker
+	 */
+	private javax.swing.JFrame origin;
+	
+	/**
 	 * Costruttore default
 	 * @param inbox Inbox (IP/porta)
 	 */
@@ -51,6 +55,7 @@ public class BackgroundWorker{
 		this.inbox = new Inbox(inbox.getIP(), inbox.getPorta());
 		try {
 			socket = new DatagramSocket();
+			socket.setSoTimeout(5000);
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -62,12 +67,14 @@ public class BackgroundWorker{
 	 * @param msg Messaggio da cifrare
 	 * @param chiave Chiave di cifratura
 	 * @param tipoCrittografia Tipo di crittografia
+	 * @param origin JFrame che ha generato il worker
 	 */
-	public void setUp(int code, String msg, String chiave, int tipoCrittografia) {
+	public void setUp(int code, String msg, String chiave, int tipoCrittografia, javax.swing.JFrame origin) {
 		this.code = code;
 		this.o_message = (this.code + ": " + msg).toCharArray();
 		this.chiave = chiave;
 		this.tipoCrittografia = tipoCrittografia;
+		this.origin = origin;
 	}
 
 	/**
@@ -85,8 +92,31 @@ public class BackgroundWorker{
 		try {
 			DatagramPacket p = new DatagramPacket(msgByte, msg.length, InetAddress.getByName(inbox.getIP()),inbox.getPorta());
 			socket.send(p);
-			
-			socket.close();
+			socket.setSoTimeout(5000);
+			Thread t = new Thread() {
+				@Override
+				public void run() {
+					int tentativi = 0;
+					try {
+						DatagramPacket res = new DatagramPacket(new byte[2], 2, InetAddress.getByName(inbox.getIP()),inbox.getPorta());
+						while(tentativi < 4){
+							try {
+								socket.receive(res);
+								
+								if(new String(res.getData()).equals("ok"))
+									break; //in caso se si arriva qui vuol dire che un pacchetto è stato ricevuto
+							}catch(Exception exp) {
+								socket.send(p);
+								tentativi++;
+							}
+						}
+						if(tentativi == 4) JOptionPane.showMessageDialog(origin, "La inbox non è stata raggiunta o non ha ricevuto il messaggio", "Invio messaggio", JOptionPane.ERROR_MESSAGE);
+						
+						socket.close();
+					}catch(Exception e) {}
+				}
+			};
+			t.start();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -46,7 +46,8 @@ public class Login extends JFrame implements ActionListener{
 	public Login() {
 		super("Secret Sender");
 		setBounds(100, 100, 400, 150);
-				
+		setResizable(false);		
+		
 		codice = new JLabel("Codice agente: ");
 		
 		/* La text pane accetta un massimo di 4
@@ -65,8 +66,7 @@ public class Login extends JFrame implements ActionListener{
 					public void insertString(int offs, String str, AttributeSet a) {
 						if((getLength() + str.length()) <= 4)
 							try {
-								str = str.replaceAll("[a-z]", "");
-								str = str.replaceAll("[A-Z]", "");
+								str = str.replaceAll("[^\\d]", "");
 								super.insertString(offs, str, a);
 							} catch (BadLocationException e) {
 								e.printStackTrace();

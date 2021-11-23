@@ -109,6 +109,10 @@ public class SecretInbox extends JFrame implements ActionListener{
 	 */
 	private PanelDecifrazione panel_dec;
 	/**
+	 * Finestra dove si provano i vari tentativi delle chiavi trovate con brute force
+	 */
+	private PanelBruteForce panel_bf;
+	/**
 	 * Pulsante con il quale si chiude l'applicazione
 	 */
 	private JButton esci;
@@ -138,8 +142,7 @@ public class SecretInbox extends JFrame implements ActionListener{
 				public void insertString(int offs, String str, AttributeSet a) {
 					if((getLength() + str.length()) <= 5)
 						try {
-							str = str.replaceAll("[a-z]", "");
-							str = str.replaceAll("[A-Z]", "");
+							str = str.replaceAll("[^\\d]", "");
 							super.insertString(offs, str, a);
 						} catch (BadLocationException e) {
 							e.printStackTrace();
@@ -164,7 +167,7 @@ public class SecretInbox extends JFrame implements ActionListener{
 		label_decifratura = new JLabel("Algoritmo di decifratura");
 		rbutton_cesare = new JRadioButton("Cesare");
 		rbutton_cesare.addActionListener(this);
-		rbutton_vigenere = new JRadioButton("Vigenère");
+		rbutton_vigenere = new JRadioButton("Vigenere");
 		rbutton_vigenere.addActionListener(this);
 		rgroup_algoritmo = new ButtonGroup();
 		rgroup_algoritmo.add(rbutton_cesare);
@@ -176,8 +179,7 @@ public class SecretInbox extends JFrame implements ActionListener{
 				@Override
 				public void insertString(int offs, String str, AttributeSet a) {
 					try {
-						str = str.replaceAll("[a-z]", "");
-						str = str.replaceAll("[A-Z]", "");
+						str = str.replaceAll("[^\\d-]", "");
 						super.insertString(offs, str, a);
 					} catch (BadLocationException e) {
 						e.printStackTrace();
@@ -239,6 +241,8 @@ public class SecretInbox extends JFrame implements ActionListener{
 		panel_Decifra.add(tmp4);
 		panel_Decifra.add(tmp5);
 		panel_Decifra.add(esci);
+		
+		panel_bf = new PanelBruteForce();
 		panel_dec = new PanelDecifrazione();
 		
 		panel_Interno = new JPanel();
@@ -248,6 +252,8 @@ public class SecretInbox extends JFrame implements ActionListener{
 		panel_Msg.setBounds(195, 10, 550, 460);
 		messaggi = new LinkedList<Pair<JButton, byte[]> >();
 		msg = null;
+		
+		setBackground(Color.white);
 		add(panel_Porta);
 		add(panel_Decifra);
 		add(panel_Msg);
@@ -263,12 +269,14 @@ public class SecretInbox extends JFrame implements ActionListener{
 			int porta;
 			try {
 				porta = Integer.parseInt(textField_portaAscolto.getText());
-				if(porta!=this.porta) {
-					this.porta = porta;
-					if(worker!=null) worker.cambiaPorta(this.porta);
-					worker = new BackgroundWorker(porta, messaggi, panel_Interno, this);
-					worker.start();
-				}
+				if(porta>=50000 && porta <= 65535) {
+					if(porta!=this.porta) {
+						this.porta = porta;
+						if(worker!=null) worker.cambiaPorta(this.porta);
+						worker = new BackgroundWorker(porta, messaggi, panel_Interno, this);
+						worker.start();
+					}
+				}else JOptionPane.showMessageDialog(null, "La porta deve essere tra 50000 e 65535", "Errore", JOptionPane.ERROR_MESSAGE);
 			} catch(Exception exp) {
 				JOptionPane.showMessageDialog(null, "La porta deve essere un numero", "Errore", JOptionPane.ERROR_MESSAGE);
 			}
@@ -328,18 +336,25 @@ public class SecretInbox extends JFrame implements ActionListener{
 				messaggi = null;
 				panel_dec.dispose();
 				panel_dec = null;
+				panel_bf.dispose();
+				panel_bf = null;
 			}catch(Exception coc) {}
 			
 			dispose();
 		}
 		else if(e.getSource().equals(button_BruteForce)) {
-			panel_Msg.getComponent(0).setVisible(false);
+			try {
+				panel_dec.setVisible(false);
+				panel_bf.setCifrato(msg);
+				panel_bf.setVisible(true);
+			}catch(Exception exp) {
+				JOptionPane.showMessageDialog(null, "Non e' stato selezionato un messaggio", "Attenzione", JOptionPane.WARNING_MESSAGE);
+			}
 		}
 		else {
 			for (int i = 0; i < messaggi.size(); i++) {
 				if(messaggi.get(i).getPrimo().equals(e.getSource())) {
 					msg = messaggi.get(i).getSecondo();
-					messaggi.get(i).getPrimo().setBackground(Color.cyan);
 					panel_dec.setVisible(true);
 					panel_dec.setCifrato(messaggi.get(i).getSecondo());
 					panel_dec.setDecifrato(new byte[]{' '});
