@@ -5,9 +5,15 @@ import java.net.SocketAddress;
 import java.util.LinkedList;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+<<<<<<< HEAD
 import java.io.File;
 import java.io.FileWriter;
 import java.io.BufferedWriter;
+=======
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.File;
+>>>>>>> a0ea2d3aed0052366cb6060980e9c3ac6a0e5301
 public class BackgroundWorker extends Thread{
 	private int porta;
 	private DatagramSocket socket;
@@ -44,6 +50,7 @@ public class BackgroundWorker extends Thread{
 			File f;
 			int i = 0;
 			while(vivo) {
+<<<<<<< HEAD
 				try {
 					for(int k = 0; k < msg.length; k++) msg[k] = 0;
 					p.setData(new byte[600]);
@@ -91,6 +98,26 @@ public class BackgroundWorker extends Thread{
 					panel.repaint();
 					i++;
 				}catch(Exception coc) {}
+=======
+				socket.receive(p);
+				int k;
+				for(k = 0; i < p.getData().length;k++)
+					if(p.getData()[k]==0) break;
+				ms = new String(p.getData(), 0, k);
+				tmp = new JButton(ms);
+				tmp.addActionListener(ibx);
+				messaggi.add(tmp);
+				panel.add(messaggi.get(i));
+				panel.revalidate();
+				panel.repaint();
+				i++;
+				
+				File file = new File("log"+porta+".txt");
+				if(!file.exists()) file.createNewFile();
+				BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+				bw.append(ms);
+				bw.close();
+>>>>>>> a0ea2d3aed0052366cb6060980e9c3ac6a0e5301
 			}
 		}catch(Exception e) {}
 	}

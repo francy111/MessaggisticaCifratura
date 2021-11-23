@@ -379,6 +379,15 @@
 				}catch(Exception exp) {
 					JOptionPane.showMessageDialog(null, "Inserire correttamente IP e porta", "Errore", 0);
 				}
+<<<<<<< HEAD
+=======
+				else JOptionPane.showMessageDialog(null, "La inbox e' gia' presente", "Errore", 0);
+				aggiornaChat();
+				impostazioniG.dispose();
+			}catch(Exception exp) {
+				JOptionPane.showMessageDialog(null, "Inserire correttamente IP e porta", "Errore", 0);
+			}
+>>>>>>> fbee4c93f276f7e98865ad3aeaf325adc3accdd4
 		}
 		
 		// Rimuove la chat attuale
