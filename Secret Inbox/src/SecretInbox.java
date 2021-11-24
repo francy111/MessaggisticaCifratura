@@ -45,10 +45,6 @@ public class SecretInbox extends JFrame implements ActionListener{
 	 */
 	private JButton button_impostaPorta;
 	/**
-	 * Pulsante con il quale si termina l'applicazione
-	 */
-	private JButton button_exit;
-	/**
 	 * Numero di porta di ascolto
 	 */
 	private int porta;
@@ -85,7 +81,7 @@ public class SecretInbox extends JFrame implements ActionListener{
 	 */
 	private JRadioButton rbutton_cesare;
 	/**
-	 * Pulsante radio per selezionare l'algoritmo di vigenère
+	 * Pulsante radio per selezionare l'algoritmo di vigenere
 	 */
 	private JRadioButton rbutton_vigenere;
 	/**
@@ -159,13 +155,10 @@ public class SecretInbox extends JFrame implements ActionListener{
 		textField_portaAscolto.setBorder(LineBorder.createBlackLineBorder());
 		button_impostaPorta = new JButton("Utilizza porta");
 		button_impostaPorta.addActionListener(this);
-		button_exit = new JButton("Exit");
-		button_exit.addActionListener(this);
 		
 		panel_Porta.add(label_portaAscolto);
 		panel_Porta.add(textField_portaAscolto);
 		panel_Porta.add(button_impostaPorta);
-		panel_Porta.add(button_exit);
 		
 		
 		panel_Decifra = new JPanel();
@@ -268,6 +261,10 @@ public class SecretInbox extends JFrame implements ActionListener{
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 	}
 	
+	/**
+	 * Crea una SecretInbox
+	 * @param args Parametri passati da riga di comando
+	 */
 	public static void main(String[] args) { new SecretInbox(); }
 
 	@Override
@@ -276,14 +273,12 @@ public class SecretInbox extends JFrame implements ActionListener{
 			int porta;
 			try {
 				porta = Integer.parseInt(textField_portaAscolto.getText());
-				if(porta>=50000 && porta <= 65535) {
-					if(porta!=this.porta) {
-						this.porta = porta;
-						if(worker!=null) worker.cambiaPorta(this.porta);
-						worker = new BackgroundWorker(porta, messaggi, panel_Interno, this);
-						worker.start();
-					}
-				}else JOptionPane.showMessageDialog(null, "La porta deve essere tra 50000 e 65535", "Errore", JOptionPane.ERROR_MESSAGE);
+				if(porta!=this.porta) {
+					this.porta = porta;
+					if(worker!=null) worker.cambiaPorta(this.porta);
+					worker = new BackgroundWorker(porta, messaggi, panel_Interno, this);
+					worker.start();
+				}
 			} catch(Exception exp) {
 				JOptionPane.showMessageDialog(null, "La porta deve essere un numero", "Errore", JOptionPane.ERROR_MESSAGE);
 			}
@@ -358,11 +353,7 @@ public class SecretInbox extends JFrame implements ActionListener{
 				JOptionPane.showMessageDialog(null, "Non e' stato selezionato un messaggio", "Attenzione", JOptionPane.WARNING_MESSAGE);
 			}
 		}
-		else if(e.getSource().equals(button_exit)) {
-			if(worker!= null) worker.die();
-		}
 		else {
-<<<<<<< HEAD
 			for (int i = 0; i < messaggi.size(); i++) {
 				if(messaggi.get(i).getPrimo().equals(e.getSource())) {
 					msg = messaggi.get(i).getSecondo();
@@ -370,11 +361,6 @@ public class SecretInbox extends JFrame implements ActionListener{
 					panel_dec.setCifrato(messaggi.get(i).getSecondo());
 					panel_dec.setDecifrato(new byte[]{' '});
 					break; // Se troviamo il pulsante che ha generato l'evento non serve controllare quelli dopo
-=======
-			for (JButton p : messaggi) {
-				if(p.equals(e.getSource())) {
-					msg = p.getText().getBytes();
->>>>>>> a0ea2d3aed0052366cb6060980e9c3ac6a0e5301
 				}
 			}
 		}

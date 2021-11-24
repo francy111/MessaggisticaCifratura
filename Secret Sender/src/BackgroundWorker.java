@@ -1,29 +1,25 @@
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.nio.charset.StandardCharsets;
 import java.net.InetAddress;
-<<<<<<< HEAD
-
-import javax.swing.JOptionPane;
-=======
-<<<<<<< HEAD
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Base64;
-=======
->>>>>>> a0ea2d3aed0052366cb6060980e9c3ac6a0e5301
->>>>>>> fbee4c93f276f7e98865ad3aeaf325adc3accdd4
+
+import javax.swing.JOptionPane;
 
 /**
  * Classe background worker
  * @author francy111
  * @version 1.0
- * Conterrà le funzionalità del secret sender
+ * Conterra'� le funzionalita'� del secret sender
  */
 public class BackgroundWorker{
 	
 	/**
 	 * Codice agente
 	 */
-	private int code;
+	private String code;
 	
 	/**
 	 * Messaggio da inviare (e cifrare)
@@ -75,9 +71,8 @@ public class BackgroundWorker{
 	 * @param msg Messaggio da cifrare
 	 * @param chiave Chiave di cifratura
 	 * @param tipoCrittografia Tipo di crittografia
-	 * @param origin JFrame che ha generato il worker
 	 */
-	public void setUp(int code, String msg, String chiave, int tipoCrittografia, javax.swing.JFrame origin) {
+	public void setUp(String code, String msg, String chiave, int tipoCrittografia, javax.swing.JFrame origin) {
 		this.code = code;
 		this.o_message = (this.code + ": " + msg).toCharArray();
 		this.chiave = chiave;
@@ -118,7 +113,7 @@ public class BackgroundWorker{
 								tentativi++;
 							}
 						}
-						if(tentativi == 4) JOptionPane.showMessageDialog(origin, "La inbox non è stata raggiunta o non ha ricevuto il messaggio", "Invio messaggio", JOptionPane.ERROR_MESSAGE);
+						if(tentativi == 4) JOptionPane.showMessageDialog(origin, "La inbox non e' stata raggiunta o non ha ricevuto il messaggio", "Invio messaggio", JOptionPane.ERROR_MESSAGE);
 						
 						socket.close();
 					}catch(Exception e) {}
@@ -164,10 +159,10 @@ public class BackgroundWorker{
 	}
 	
 	/**
-	 * Metodo utilizzato per cifrare il messaggio con il cifrario di Vigenerè
+	 * Metodo utilizzato per cifrare il messaggio con il cifrario di Vigenere
 	 * @param msg Messaggio da cifrare
 	 * @param chiave Chiave di cifratura (messaggio)
-	 * @return Messaggio cifrato con il cifrario di Vigenerè
+	 * @return Messaggio cifrato con il cifrario di Vigenere
 	 */
 	private char[] cifraturaVigenere(char[] msg, String chiave) {
 		char[] cifrato = new char[msg.length];

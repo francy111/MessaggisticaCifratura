@@ -1,6 +1,21 @@
+/**
+ * Classe decifratore
+ * @author francy111
+ * @version 1.0
+ * Contiene i metodi per decifrare i messaggi con l'algoritmo di Cesare, Vigenere e Brute force
+ */
 public class Decifratore {
+	/**
+	 * Costruttore
+	 */
 	private Decifratore() {}
 
+	/**
+	 * Metodo per decifrare i messaggi utilizzando l'algoritmo di Cesare
+	 * @param msg Messaggio cifrato
+	 * @param chiave Chiave da utilizzare
+	 * @return Messaggio decifrato
+	 */
 	public static byte[] decifraCesare(byte[] msg, int chiave) {
 		byte[] res = new byte[msg.length];
 		byte key = (byte)(chiave%255);
@@ -9,6 +24,12 @@ public class Decifratore {
 		
 		return res;
 	}
+	/**
+	 * Metodo per decifrare i messaggi utilizzando l'algoritmo di Vigenere
+	 * @param msg Messaggio cifrato
+	 * @param chiave Chiave da utilizzare
+	 * @return Messaggio decifrato
+	 */
 	public static byte[] decifraVigenere(byte[] msg, String chiave) {
 		byte[] res = new byte[msg.length];
 		byte[] key = new byte[chiave.length()];
@@ -19,6 +40,11 @@ public class Decifratore {
 		
 		return res;
 	}
+	/**
+	 * Metodo per decifrare i messaggi utilizzando l'algoritmo Brute Force
+	 * @param msg Messaggio cifrato
+	 * @return Una delle chiavi per decifrare il messaggio
+	 */
 	public static byte[] decifraBruteForce(byte[] msg){
 		byte[] res = new byte[msg.length];
 		for(int i = 0; i < msg.length; i++) res[i] = msg[i];

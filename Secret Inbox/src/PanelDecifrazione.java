@@ -3,19 +3,31 @@ import java.awt.Color;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 
+/**
+ * Classe panel decifrazione
+ * @author francy111
+ * @version 1.0
+ * Mostra il messaggio cifrato e quello decifrato
+ */
 class PanelDecifrazione extends JFrame{
 
 	/**
 	 * ID di versione seriale
 	 */
 	private static final long serialVersionUID = -3078384404698824954L;
+	/**
+	 * Aree di testo
+	 */
 	private JTextArea p1, p2;
 	
+	/**
+	 * Costruttore
+	 */
 	PanelDecifrazione() {
 		super("Decifrazione");
 		setLayout(null);
 		setBounds(100, 100, 700, 400);
-		setResizable(false);
+		
 		JLabel l1, l2;
 		l1 = new JLabel("Messaggio cifrato");
 		l1.setBounds(125, 5, 200, 25);
@@ -47,10 +59,18 @@ class PanelDecifrazione extends JFrame{
 		setVisible(false);
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 	}
+	/**
+	 * Imposta il messaggio cifrato
+	 * @param msg Messaggio cifrato
+	 */
 	void setCifrato(byte[] msg) {
 		String ms = new String(msg);
 		p1.setText(ms);
 	}
+	/**
+	 * Imposta il messaggio decifrato
+	 * @param msg Messaggio decifrato
+	 */
 	void setDecifrato(byte[] msg) {
 		String ms = new String(msg);
 		p2.setText(ms);

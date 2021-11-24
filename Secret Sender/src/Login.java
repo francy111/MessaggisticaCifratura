@@ -1,10 +1,3 @@
-/**
- * Classe Login (Finestra grafica)
- * @author francy111
- * @version 1.0
- * conterrà ogni elemento presente
- * nell'interfaccia grafica
- */
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -13,6 +6,13 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 
+/**
+ * Classe Login (Finestra grafica)
+ * @author francy111
+ * @version 1.0
+ * conterrà ogni elemento presente
+ * nell'interfaccia grafica
+ */
 public class Login extends JFrame implements ActionListener{
 	
 	/**
@@ -30,7 +30,7 @@ public class Login extends JFrame implements ActionListener{
 	private JLabel codice;
 	
 	/**
-	 * Campo di testo in cui si dovr� inserire il codice dell'agente
+	 * Campo di testo in cui si dovra' inserire il codice dell'agente
 	 */
 	private JTextPane codiceAgente;
 	
@@ -46,14 +46,13 @@ public class Login extends JFrame implements ActionListener{
 	public Login() {
 		super("Secret Sender");
 		setBounds(100, 100, 400, 150);
-		setResizable(false);		
-		
+				
 		codice = new JLabel("Codice agente: ");
 		
 		/* La text pane accetta un massimo di 4
 		 * caratteri (il codice dell'agente sono solo 4 numeri).
-		 * Se si prova a digitare qualcosa dopo 4 caratteri non verr� aggiunto niente
-		 * alla stringa gi� esistente.
+		 * Se si prova a digitare qualcosa dopo 4 caratteri non verra' aggiunto niente
+		 * alla stringa gia' esistente.
 		 * 
 		 * Per realizzare questo si esegue l'override di insertString, per
 		 * impedire di far inserire caratteri dopo aver raggiunto lunghezza 4.
@@ -110,7 +109,7 @@ public class Login extends JFrame implements ActionListener{
 	
 	/**
 	 * Metodo utilizzato per gestire gli eventi
-	 * @param e Eventoì
+	 * @param e Evento
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -119,8 +118,8 @@ public class Login extends JFrame implements ActionListener{
 				if(codiceAgente.getText().length()<4) JOptionPane.showMessageDialog(null, "Inserire un codice di 4 cifre", "Errore", JOptionPane.ERROR_MESSAGE);
 				else {
 					int code = Integer.parseInt(codiceAgente.getText());
-				
-					new SecretSender(code);
+
+					new SecretSender(codiceAgente.getText());
 					dispose();
 				}
 			}catch(Exception exp) {

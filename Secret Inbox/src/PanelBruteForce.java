@@ -6,20 +6,50 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 
+/**
+ * Classe panel decifrazione brute force
+ * @author francy111
+ * @version 1.0
+ * Mostra il messaggio cifrato e quello decifrato, insieme alle possibili chiavi per decifrare
+ */
 class PanelBruteForce extends JFrame implements ActionListener{
 
 	/**
 	 * ID di versione seriale
 	 */
 	private static final long serialVersionUID = -3078384404698824954L;
+	/**
+	 * Aree di testo
+	 */
 	private JTextArea p1, p2;
+	/**
+	 * Pannello
+	 */
 	private JPanel p3;
+	/**
+	 * Campi di testo
+	 */
 	JTextField k1, k5;
+	/**
+	 * Menu a tendina
+	 */
 	JComboBox<Character> k2, k3, k4;
+	/**
+	 * Pulsante per decifrare il messaggio
+	 */
 	JButton decifra;
+	/**
+	 * Messaggio cifrato
+	 */
 	private byte[] cifrato;
+	/**
+	 * Una delle possibili chiavi di decifratura
+	 */
 	private byte[] forseChiave;
 	
+	/**
+	 * Costruttore
+	 */
 	PanelBruteForce() {
 		super("Decifrazione brute force");
 		setLayout(null);
@@ -51,10 +81,20 @@ class PanelBruteForce extends JFrame implements ActionListener{
 		p3.setBounds(355, 30, 335, 70);
 		p3.setBackground(Color.white);
 		k1 = new JTextField("");
+		k1.setEditable(false);
+		k1.setForeground(Color.black);
 		k2 = new JComboBox<Character>();
+		k2.setEditable(false);
+		k2.setForeground(Color.black);
 		k3 = new JComboBox<Character>();
+		k3.setEditable(false);
+		k3.setForeground(Color.black);
 		k4 = new JComboBox<Character>();
+		k4.setEditable(false);
+		k4.setForeground(Color.black);
 		k5 = new JTextField("");
+		k5.setEditable(false);
+		k5.setForeground(Color.black);
 		k1.setPreferredSize(new Dimension(50, 25));
 		k5.setPreferredSize(new Dimension(50, 25));
 		decifra = new JButton("Prova chiave");
@@ -81,6 +121,10 @@ class PanelBruteForce extends JFrame implements ActionListener{
 		setVisible(false);
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 	}
+	/**
+	 * Imposta il messaggio cifrato
+	 * @param msg Messaggio cifrato
+	 */
 	void setCifrato(byte[] msg) {
 		this.cifrato = new byte[msg.length];
 		for(int i = 0;i<cifrato.length;i++) this.cifrato[i] = msg[i];
@@ -89,10 +133,18 @@ class PanelBruteForce extends JFrame implements ActionListener{
 		forseChiave = Decifratore.decifraBruteForce(cifrato);
 		setChiave(forseChiave);
 	}
+	/**
+	 * Imposta il messaggio decifrato
+	 * @param msg Messaggio decifrato
+	 */
 	void setDecifrato(byte[] msg) {
 		String ms = new String(msg);
 		p2.setText(ms);
 	}
+	/**
+	 * Imposta la chiave
+	 * @param chiave Possibile chiave di decifratura
+	 */
 	private void setChiave(byte[] chiave) {
 		k1.setText(""+(char)chiave[0]);
 		for(int i = 0; i < 10; i++) k2.addItem((char)(chiave[1] + (byte)i));

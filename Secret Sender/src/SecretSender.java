@@ -11,12 +11,12 @@
 	 * Classe secret sender
 	 * @author francy111
 	 * @version 1.0
-	 * Contieneï¿½ le funzionalita'ï¿½ del secret sender
+	 * Contiene le funzionalita' del secret sender
 	 * 
 	 * Inserire codice agente
 	 * Inserire IP-Porta secret inbox
 	 * Digitare il messaggio da inviare
-	 * Selezionare la modalitÃ  di cifratura
+	 * Selezionare la modalita'  di cifratura
 	 */
 	public class SecretSender extends JFrame implements ActionListener {
 		
@@ -33,7 +33,7 @@
 	/**
 	 * Codice agente
 	 */
-	private int code;
+	private String code;
 	
 	/**
 	 * Lista di tutte le inbox al quale si inviano messaggi
@@ -120,7 +120,7 @@
 	 * Costruttore default
 	 * @param code Codice dell'agente che ha eseguito l'accesso
 	 */
-	public SecretSender(int code) {
+	public SecretSender(String code) {
 		
 		// Si imposta la dimensioni della finestra
 		super("Secret Sender - Session ID:" + code);
@@ -371,23 +371,13 @@
 						if(!contiene(inboxes, p)) { 
 							inboxes.add(p);
 						}
-						else JOptionPane.showMessageDialog(null, "La inbox ï¿½ giï¿½ presente", "Errore", 0);
+						else JOptionPane.showMessageDialog(null, "La inbox e' gia' presente", "Errore", 0);
 						aggiornaChat();
 						impostazioniG.dispose();
-						
 					}
 				}catch(Exception exp) {
 					JOptionPane.showMessageDialog(null, "Inserire correttamente IP e porta", "Errore", 0);
 				}
-<<<<<<< HEAD
-=======
-				else JOptionPane.showMessageDialog(null, "La inbox e' gia' presente", "Errore", 0);
-				aggiornaChat();
-				impostazioniG.dispose();
-			}catch(Exception exp) {
-				JOptionPane.showMessageDialog(null, "Inserire correttamente IP e porta", "Errore", 0);
-			}
->>>>>>> fbee4c93f276f7e98865ad3aeaf325adc3accdd4
 		}
 		
 		// Rimuove la chat attuale
